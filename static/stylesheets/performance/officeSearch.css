@@ -1,0 +1,39 @@
+table.dataTable {
+    margin-left: 0px;
+}
+input {
+    width: 130px;
+    height: 30px;
+}
+.edit-input {
+    height: 22px;
+    width: 50px;
+}
+.edit-input2 {
+    height: 22px;
+    width: 130px;
+}
+thead {
+    background: #D9E8F7;
+    color: #307ecc;
+    font-size: 12px;
+}
+/*控制表格的高度*/
+table.dataTable tbody th, table.dataTable tbody td {
+    padding: 4px 10px;
+}
+table.dataTable thead th, table.dataTable thead td {
+    padding: 10px 10px;
+}
+
+tfoot th {
+    color: red;
+}
+
+#navi {
+    color: green;
+}
+#button_keep, #commit-true {
+    height: 30px;
+    line-height: 0px;
+}

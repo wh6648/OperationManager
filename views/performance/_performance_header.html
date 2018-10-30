@@ -1,0 +1,203 @@
+<input type="hidden" id="_csrf" name="_csrf" value="<%= csrftoken %>" />
+
+<!-- 页面头部 -->
+
+<script type="text/javascript" src="<%= dynamic('/javascripts/_header.js')%>"></script>
+
+<!-- #section:basics/navbar.layout -->
+<div id="navbar" class="navbar navbar-default    navbar-collapse       h-navbar">
+  <script type="text/javascript">
+    try{ace.settings.check('navbar' , 'fixed')}catch(e){}
+  </script>
+
+  <div class="navbar-container" id="navbar-container">
+    <div class="navbar-header pull-left">
+      <!-- #section:basics/navbar.layout.brand -->
+      <a id="header_name" href="javascript:void(0);" class="navbar-brand">
+        <small>
+            <img src="../static/images/logo.png" height="20">
+            <small>信风海运业务运营管理平台 - <%= handler.params.name%></small>
+        </small>
+      </a>
+
+      <!-- /section:basics/navbar.layout.brand -->
+
+      <!-- #section:basics/navbar.toggle -->
+      <button class="pull-right navbar-toggle navbar-toggle-img collapsed" type="button" data-toggle="collapse" data-target=".navbar-buttons,.navbar-menu">
+        <span class="sr-only">Toggle user menu</span>
+
+        <img src="/file/<%= user.extend.small_head_image%>" alt="Jason's Photo" />
+      </button>
+
+      <button class="pull-right navbar-toggle collapsed" type="button" data-toggle="collapse" data-target=".sidebar">
+        <span class="sr-only">Toggle sidebar</span>
+
+        <span class="icon-bar"></span>
+
+        <span class="icon-bar"></span>
+
+        <span class="icon-bar"></span>
+      </button>
+
+      <!-- /section:basics/navbar.toggle -->
+    </div>
+
+    <!-- #section:basics/navbar.dropdown -->
+    <div class="navbar-buttons navbar-header pull-right  collapse navbar-collapse" style="padding-right: 0px;" role="navigation">
+      <ul class="nav ace-nav">
+
+        <li id="home_btn" style="width: 45px ;padding-top: 6px;" title="home">
+          <i class="ace-icon fa fa-home home-icon bigger-260 white" title="home"></i>
+        </li>
+
+          <li class="purple">
+              <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                  <i class="ace-icon fa fa-bell icon-animated-bell"></i>
+                  <span class="badge badge-important" id="show_msg_num">0</span>
+              </a>
+
+              <ul id="msg_div" class="dropdown-menu-right dropdown-navbar navbar-pink dropdown-menu dropdown-caret dropdown-close">
+                  <li class="dropdown-header" id="first_msg_n">
+                      <i class="ace-icon fa fa-exclamation-triangle"></i>
+                      <font id="msg_num">0</font>个 通知
+                      <a style="float: right;font-weight: 900;font-size:13px;color: blue;text-decoration: underline;" id="msg_list_change_b" href="javascript:void(0)">查看已读</a>
+                  </li>
+
+                <!--  <li>
+                      <a href="#">
+                          <div class="clearfix">
+                            <span class="pull-left">
+                                <i class="btn btn-xs no-hover btn-pink fa fa-comment"></i>
+                                2015/8/25之前，办事处需填报
+                            </span>
+                            <span class="pull-right badge badge-notice" style="background-color: #d6487e !important">+3</span>
+                          </div>
+                      </a>
+                  </li>
+
+                  <li>
+                      <a href="#">
+                          <i class="btn btn-xs btn-primary fa fa-user"></i>
+                          副总已审批
+                          <span class="pull-right badge badge-info">+1</span>
+                      </a>
+                  </li>
+
+                  <li>
+                      <a href="#">
+                          <i class="btn btn-xs btn-primary fa fa-user"></i>
+                          人事已审批
+                          <span class="pull-right badge badge-info">+1</span>
+                      </a>
+                  </li>
+
+                  <li>
+                      <a href="#">
+                          <div class="clearfix">
+                            <span class="pull-left">
+                                <i class="btn btn-xs no-hover btn-success fa fa-shopping-cart"></i>
+                                New Orders
+                            </span>
+                            <span class="pull-right badge badge-success">+3</span>
+                          </div>
+                      </a>
+                  </li>-->
+
+              </ul>
+          </li>
+
+          <!--user-min-->
+        <li class="light-blue">
+          <a data-toggle="dropdown" href="javascript:void(0);" class="dropdown-toggle">
+            <img class="nav-user-photo" src="/file/<%= user.extend.small_head_image%>" style="width:40px;height:40px;" alt="" />
+                <span class="user-info">
+                    <small>您好,</small>
+                     <small><%= user.name%></small>
+                </span>
+            <i class="ace-icon fa fa-caret-down"></i>
+          </a>
+
+          <ul class="user-menu dropdown-menu-right dropdown-menu dropdown-yellow dropdown-caret dropdown-close">
+            <li id="psUpdate">
+                <a>
+                    <i class="ace-icon fa fa-key"></i>
+                    <small >修改密码</small>
+                </a>
+            </li>
+            <li>
+              <a href="/logout">
+                <i class="ace-icon fa fa-power-off"></i>
+                <small>注销</small>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- /section:basics/navbar.user_menu -->
+      </ul>
+    </div>
+  </div><!-- /.navbar-container -->
+</div>
+
+<div class="modal fade" id="passwordUpdate"><!-- /.modalr -->
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                    <span class="sr-only">Close</span>
+                </button>
+
+                <h4 class="modal-title"><i class="fa fa-photo"></i>&nbsp;修改密码</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" role="form" >
+                    <table border="0"  height="300"  >
+                        <tr>
+                            <td width="120"></td>
+                            <td>账户：</td>
+                            <td><input type="text" readonly="readonly" value="<%= user.id%>" id="id"></td>
+                            <td><input type="hidden" readonly="readonly" value="<%= user._id%>" id="_id"></td>
+                        </tr>
+                        <tr>
+                            <td ></td>
+                            <td>原始密码：</td>
+                            <td><input type="password" id="oldPassword" placeholder="请输入原始密码" ></td>
+                            <td><i id="ok" class="ace-icon glyphicon glyphicon-ok green hidden"></i><i id="err" class="ace-icon glyphicon glyphicon-remove red hidden"></i></td>
+                        </tr>
+                        <tr>
+                            <td ></td>
+                            <td>新密码：</td>
+                            <td><input type="password" id="password1" placeholder="请输入新密码"></td>
+                            <td><i id="tip1" class="hidden">(密码不能为空)</i></td>
+                        </tr>
+                        <tr>
+                            <td ></td>
+                            <td>确认新密码：</td>
+                            <td><input type="password" id="password2" placeholder="请再次输入新密码"></td>
+                            <td><i id="tip2" class="hidden">(两次新密码不一致)</i></td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+            <div class="modal-footer" >
+                <button type="button" class="btn btn-primary" id="newPsSave">确认</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<input id="hid-user-groups" hidden="hidden" value="<%= user.groups%>" />
+<input id="hid-user" hidden="hidden" value="<%= user.extend.orgid%>" />
+<input id="hid-user-code" hidden="hidden" value="<%= user.id%>" />
+
+<div hidden="hidden">
+    <input type="text" id="chatData" placeholder="Message" />
+</div>
+<!-- /section:basics/navbar.layout -->
+<div class="main-container" id="main-container">
+  <script type="text/javascript">
+    try{ace.settings.check('main-container' , 'fixed')}catch(e){}
+  </script>
+</div>
+
+<script type="text/javascript" src="<%= dynamic('/javascripts/performance/notifyInfo.js')%>"></script>

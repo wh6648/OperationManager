@@ -1,0 +1,12 @@
+.tree-node {
+    height: 25px !important;
+    margin-top: 15px !important;
+}
+
+p {
+    display: none !important;
+}
+
+.childHeight {
+    height: 35px !important;
+}

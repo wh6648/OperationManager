@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>商务人数申报</title>
+
+    <meta name="description" content="top menu &amp; navigation" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+    <% include ../_required.html %>
+    <link rel="stylesheet" href="<%= dynamic('/stylesheets/gh-buttons.css') %>"/>
+    <link rel="stylesheet" href="<%= dynamic('/assets/dataTable/media/css/jquery.dataTables.css') %>" />
+    <!--<link rel="stylesheet" href="<%= dynamic('/assets/dataTable/resources/syntax/shCore.css') %>"/>-->
+    <!--所有页面都会用到的样式-->
+    <link rel="stylesheet" href="<%= dynamic('/stylesheets/performance/frameworkStyle.css') %>"/>
+
+    <style type="text/css" class="init">
+        #keepBonus, #subBonus {
+            height: 30px;
+            line-height: 0px;
+        }
+        .dataTables_wrapper{
+            width:800px;
+        }
+        table{padding-top:10px;}
+        thead {
+            background: #D9E8F7;
+            color: #307ecc;
+            font-size: 12px;
+        }
+        input {
+            width: 100px;
+            height: 30px;
+        }
+        .edit-input{
+            height: 22px;
+            width: 100px;
+        }
+        /*控制表格的高度*/
+        table.dataTable tbody th, table.dataTable tbody td {
+            padding: 4px 10px;
+        }
+        /*为了让datable表格的检索框固定在导航上－下面三个*/
+        .breadcrumbs {
+            width: 100%;
+            z-index: 1;
+        }
+        .dataTables_filter {
+            top: -45px;
+            right: 0px;
+            position: absolute;
+            z-index: 2;
+        }
+        .main-content {
+            position: relative;
+        }
+        .select-word {
+            top: -8px;
+            position: relative;
+        }
+        .select-quarter {
+            margin-left: 40px;
+        }
+        .btn-div {
+            margin-top: 8px;
+        }
+
+    </style>
+</head>
+<body class="no-skin" style="overflow-x: hidden" data-value="business1">
+
+<% include _performance_header.html %>
+
+
+<div class="modal fade" id="change_note"><!-- /.modalr -->
+    <div class="modal-dialog">
+        <div class="modal-content" >
+            <div class="modal-body">
+                <div>
+                    <div style="font-size: 25px;">修改备注：</div>
+                    <div><textarea class="note_area"></textarea></div>
+                    <div style="text-align: right;">
+                        <button class="btn btn-primary" id="area_ok">确认修改</button>
+                        <button class="btn btn-primary" id="area_cancle">取消修改</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+
+        <div class="tabbable">
+            <div class="tabbable tabs-left">
+
+                <div class="sidebar" id="sidebar">
+                    <% include _left_report.html %>
+                </div>
+
+                <div class="main-content">
+                    <div class="breadcrumbs" id="breadcrumbs">
+                        <script type="text/javascript">
+                            try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+                        </script>
+
+                        <span style="float: right;font-size: 16px;">
+                            <strong style="color:green;">距离结束还有</strong>
+                            <strong style="color:red;">
+                                <!--倒计时模块-->
+                                <div class="time-item" style="display: inline;">
+                                    <span id="day_show">0天</span>
+                                    <strong id="hour_show">0时</strong>
+                                    <strong id="minute_show">0分</strong>
+                                    <strong id="second_show">0秒</strong>
+                                </div>
+                            </strong>
+
+                        </span>
+
+                        <ul class="breadcrumb">
+                            <li>
+                                <i class="ace-icon fa fa-home home-icon"></i>
+                                <a href="/site/flowChart?name=绩效考核">Home</a>
+                            </li>
+
+                            <li>
+                                主管申报
+                            </li>
+                            <li class="active">
+                                商务人数申报
+                            </li>
+                        </ul><!-- /.breadcrumb -->
+
+                    </div>
+
+                    <div class="tab-content" id="page-content">
+
+                        <table id="example" class="display" cellspacing="0" width="100%">
+
+                            <thead>
+                            </thead>
+
+                            <tbody>
+                            </tbody>
+
+                            <tfoot>
+                            </tfoot>
+
+                        </table>
+
+                        <button class="btn btn-primary btn-hr-distribution" id="keepBonus" style="margin-left: 10px;">保存</button>
+                        <button class="btn btn-primary" id="subBonus" style="margin-left: 10px;">提交</button>
+
+                        <span class="label label-pink arrowed sub-true" style="display: none;">已提交</span>
+                        <span class="label arrowed sub-false" style="display: none;">未提交</span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+<div class="time-control" hidden="hidden" data-val="swrssb"></div>
+
+<% include ../_footer.html %>
+
+<script src="/static/assets/js/ace.min.js"></script>
+<script type="text/javascript" src="<%= dynamic('/assets/dataTable/media/js/jquery.dataTables.js') %>"></script>
+<script type="text/javascript" src="<%= dynamic('/assets/dataTable/resources/syntax/shCore.js') %>"></script>
+<script type="text/javascript" src="<%= dynamic('/assets/dataTable/resources/demo.js') %>"></script>
+<script type="text/javascript" src="/static/javascripts/performance/business.js"></script>
+
+<script type="text/javascript" src="/static/javascripts/performance/jquery.time_show_self.js"></script>
+<script type="text/javascript" language="javascript" class="init"></script>
+<script type="text/javascript" src="/static/javascripts/performance/timeControl.js"></script>
+<script src="/static/javascripts/performance/note_show.js"></script>
+</body>
+</html>

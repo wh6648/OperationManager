@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>总奖金分配</title>
+
+    <meta name="description" content="top menu &amp; navigation" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+    <% include ../_required.html %>
+    <link rel="stylesheet" href="<%= dynamic('/stylesheets/gh-buttons.css') %>"/>
+    <link rel="stylesheet" href="<%= dynamic('/assets/dataTable/media/css/jquery.dataTables.css') %>" />
+    <!--<link rel="stylesheet" href="<%= dynamic('/assets/dataTable/resources/syntax/shCore.css') %>"/>-->
+    <!--所有页面都会用到的样式-->
+    <link rel="stylesheet" href="<%= dynamic('/stylesheets/performance/frameworkStyle.css') %>" />
+
+    <style type="text/css" class="init">
+        #keepBonus, #subBonus {
+            height: 30px;
+            line-height: 0px;
+        }
+        .dataTables_wrapper{
+            width:780px;
+        }
+        table{padding-top:10px;}
+        thead {
+            background: #D9E8F7;
+            color: #307ecc;
+            font-size: 12px;
+        }
+        tfoot th {
+            color: red;
+        }
+        input {
+            width: 100px;
+            height: 22px;
+            font-size: 13px;
+        }
+        /*控制表格的高度*/
+        table.dataTable tbody th, table.dataTable tbody td {
+            padding: 4px 10px;
+        }
+        .tab-content {
+            padding: 0px 10px;
+        }
+        #page-content {
+            min-height: 500px;
+        }
+        .main-content {
+            position: relative;
+        }
+        .dataTables_wrapper {
+            top: -40px;
+        }
+        .search-select {
+            position: absolute;
+            margin-top: 10px;
+        }
+        /*年季度月选择样式*/
+        .year-quarter-month {
+            width: 320px;
+            float: left;
+            z-index: 3;
+            position: relative;
+        }
+        .select-month, .select-quarter {
+            z-index: 3;
+            width: 900px;
+            position: relative;
+        }
+        .year-select {
+            margin-right: 13px;
+            float:left
+        }
+        .select-word {
+            top: -8px;
+            position: relative;
+        }
+        #navi {
+            color: green;
+        }
+
+    </style>
+</head>
+<body class="no-skin" style="overflow-x: hidden"  data-value="allBonus1">
+
+<% include _performance_header.html %>
+
+<div class="row">
+    <div class="col-sm-12">
+
+        <div class="tabbable">
+            <div class="tabbable tabs-left">
+
+                <div class="sidebar" id="sidebar">
+                    <% include _left_report.html %>
+                </div>
+
+                <div class="main-content">
+                    <div class="breadcrumbs" id="breadcrumbs">
+                        <script type="text/javascript">
+                            try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+                        </script>
+
+                        <ul class="breadcrumb">
+                            <li>
+                                <i class="ace-icon fa fa-home home-icon"></i>
+                                <a href="/site/flowChart?name=绩效考核">Home</a>
+                            </li>
+
+                            <li class="active">
+                                总奖金分配
+                                <span id="navi"></span>
+                            </li>
+
+                        </ul><!-- /.breadcrumb -->
+
+                        <span style="float: right;font-size: 16px;">
+                            <strong style="color:green;">距离结束还有</strong>
+                            <strong style="color:red;">
+                                <!--倒计时模块-->
+                                <div class="time-item" style="display: inline;">
+                                    <span id="day_show">0天</span>
+                                    <strong id="hour_show">0时</strong>
+                                    <strong id="minute_show">0分</strong>
+                                    <strong id="second_show">0秒</strong>
+                                </div>
+                            </strong>
+                        </span>
+
+                    </div>
+
+                    <div class="tab-content" id="page-content" style="width: 790px">
+
+
+
+                        <table id="example" class="display" cellspacing="0" width="100%" style="margin-top: 40px">
+
+                            <thead>
+
+                            </thead>
+                            <tbody>
+                            </tbody>
+                            <tfoot>
+                            <tr>
+                                <th></th>
+                                <th>合计:</th>
+                                <th id="count"></th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                            </tfoot>
+                        </table>
+                        <button class="btn btn-primary btn-hr-distribution" id="keepBonus" style="margin-left: 10px;">保存</button>
+                        <button class="btn btn-primary" id="subBonus" style="margin-left: 10px;">提交</button>
+
+                        <span class="label label-pink arrowed sub-true" style="display: none;">已提交</span>
+                        <span class="label arrowed sub-false" style="display: none;">未提交</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+<div class="time-control" hidden="hidden" data-val="zjfp"></div>
+
+<% include ../_footer.html %>
+
+<script src="/static/assets/js/ace.min.js"></script>
+<script type="text/javascript" src="<%= dynamic('/assets/dataTable/media/js/jquery.dataTables.js') %>"></script>
+<script type="text/javascript" src="<%= dynamic('/assets/dataTable/resources/syntax/shCore.js') %>"></script>
+<script type="text/javascript" src="<%= dynamic('/assets/dataTable/resources/demo.js') %>"></script>
+
+<script type="text/javascript" src="/static/javascripts/performance/jquery.time_show_self.js"></script>
+<script type="text/javascript" src="/static/javascripts/performance/timeControl.js"></script>
+<script type="text/javascript" src="/static/javascripts/performance/bonusDistribution.js"></script>
+
+</body>
+</html>

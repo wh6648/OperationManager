@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>办事处绩效汇总</title>
+
+    <meta name="description" content="top menu &amp; navigation" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+    <% include ../_required.html %>
+    <link rel="stylesheet" href="<%= dynamic('/stylesheets/gh-buttons.css') %>"/>
+    <link rel="stylesheet" href="<%= dynamic('/assets/dataTable/media/css/jquery.dataTables.css') %>" />
+    <!--所有页面都会用到的样式-->
+    <link rel="stylesheet" href="<%= dynamic('/stylesheets/performance/frameworkStyle.css') %>"/>
+
+    <link rel="stylesheet" href="<%= dynamic('/stylesheets/performance/performanceSummary.css') %>"/>
+
+</head>
+<body class="no-skin" style="overflow-x: hidden" data-value="performanceSummary">
+
+<% include _performance_header.html %>
+
+<div class="row">
+    <div class="col-sm-12">
+
+        <div class="tabbable">
+            <div class="tabbable tabs-left">
+
+                <div class="sidebar" id="sidebar">
+                    <% include _left_report.html %>
+                </div>
+
+                <div class="main-content">
+                    <div class="breadcrumbs" id="breadcrumbs">
+                        <script type="text/javascript">
+                            try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+                        </script>
+
+                        <ul class="breadcrumb">
+                            <li>
+                                <i class="ace-icon fa fa-home home-icon"></i>
+                                <a href="/site/flowChart?name=绩效考核">Home</a>
+                            </li>
+
+                            <li>
+                                人资管理
+                            </li>
+                            <li class="active">
+                                办事处指标汇总
+                            </li>
+                        </ul><!-- /.breadcrumb -->
+
+                    </div>
+
+                    <div class="tab-content" id="page-content">
+                        <div style="height:40px;"></div>
+                        <div class="search-select">
+                            <div class="year-quarter-month">
+
+                                <div class="year-select">
+                                    <label class="control-label no-padding-right green select-word">年度:&nbsp;</label>
+
+                                    <ul class="button-group">
+                                        <li><a id="year" href="javascript:void(0)" class="button  pill yearGroup" value=""></a></li>
+                                        <li><a id="year_n" href="javascript:void(0)" class="button  pill yearGroup-n" value=""></a></li>
+                                        <li><a id="year_2n" href="javascript:void(0)" class="button  pill yearGroup-n" value=""></a></li>
+                                    </ul>
+                                </div>
+
+                                <div class="quarter-month-select">
+                                    <ul class="button-group">
+                                        <li><a id="mq_quarter" href="javascript:void(0)" class="button pill mqGroup active" role-type="quarter">季报</a></li>
+                                        <li><a id="mq_month" href="javascript:void(0)" class="button pill mqGroup" role-type="month">月报</a></li>
+                                    </ul>
+                                </div>
+
+                            </div>
+
+                            <ul class="button-group select-month" id="month" style="display: none;">
+                                <li><a id="month_01" href="javascript:void(0)" class="button pill monthGroup" role-type="1">1月</a></li>
+                                <li><a id="month_02" href="javascript:void(0)" class="button pill monthGroup" role-type="2">2月</a></li>
+                                <li><a id="month_03" href="javascript:void(0)" class="button pill monthGroup" role-type="3">3月</a></li>
+                                <li><a id="month_04" href="javascript:void(0)" class="button pill monthGroup" role-type="4">4月</a></li>
+                                <li><a id="month_05" href="javascript:void(0)" class="button pill monthGroup" role-type="5">5月</a></li>
+                                <li><a id="month_06" href="javascript:void(0)" class="button pill monthGroup" role-type="6">6月</a></li>
+                                <li><a id="month_07" href="javascript:void(0)" class="button pill monthGroup" role-type="7">7月</a></li>
+                                <li><a id="month_08" href="javascript:void(0)" class="button pill monthGroup" role-type="8">8月</a></li>
+                                <li><a id="month_09" href="javascript:void(0)" class="button pill monthGroup" role-type="9">9月</a></li>
+                                <li><a id="month_10" href="javascript:void(0)" class="button pill monthGroup" role-type="10">10月</a></li>
+                                <li><a id="month_11" href="javascript:void(0)" class="button pill monthGroup" role-type="11">11月</a></li>
+                                <li><a id="month_12" href="javascript:void(0)" class="button pill monthGroup" role-type="12">12月</a></li>
+                            </ul>
+
+                            <ul class="button-group select-quarter" id="quarter" style="display: block;">
+                                <li><a id="quarter_1" href="javascript:void(0)" class="button pill quarterGroup" role-type="1">1季度</a></li>
+                                <li><a id="quarter_2" href="javascript:void(0)" class="button pill quarterGroup" role-type="2">2季度</a></li>
+                                <li><a id="quarter_3" href="javascript:void(0)" class="button pill quarterGroup" role-type="3">3季度</a></li>
+                                <li><a id="quarter_4" href="javascript:void(0)" class="button pill quarterGroup" role-type="4">4季度</a></li>
+                            </ul>
+
+                            <button class="btn btn-info" id="search-btn" type="button">
+                                查询
+                            </button>
+
+                        </div>
+
+                        <div class="tabbable" style="margin-top:35px;">
+                            <ul class="nav nav-tabs padding-12 tab-color-blue background-blue" id="myTab4">
+                                <li class="active">
+                                    <a data-toggle="tab" href="#home4" id="tab1">航线</a>
+                                </li>
+                                <li class="">
+                                    <a data-toggle="tab" href="#profile4" id="tab2">物流</a>
+                                </li>
+                            </ul>
+
+                            <div class="tab-content">
+                                <div id="home4" class="tab-pane active">
+
+                                    <table id="example" class="display" cellspacing="0" width="100%">
+                                        <thead>
+
+                                        </thead>
+
+                                        <tbody>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td>合计</td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td>最高数</td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td>最低数</td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td>差值(分/点)</td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<div hidden="hidden" id="hid_year" value-data=""></div>
+<div hidden="hidden" id="hid_month_quarter" value-data="quarter"></div>
+<div hidden="hidden" id="hid_quarter" value-data=""></div>
+<div hidden="hidden" id="hid_month" value-data=""></div>
+
+<% include ../_footer.html %>
+
+<script src="/static/assets/js/ace.min.js"></script>
+<script type="text/javascript" src="<%= dynamic('/assets/dataTable/media/js/jquery.js') %>"></script>
+<script type="text/javascript" src="<%= dynamic('/assets/dataTable/media/js/jquery.dataTables.js') %>"></script>
+<script type="text/javascript" src="<%= dynamic('/assets/dataTable/resources/syntax/shCore.js') %>"></script>
+<script type="text/javascript" src="<%= dynamic('/assets/dataTable/resources/demo.js') %>"></script>
+<!--时间转换js -->
+<script type="text/javascript" src="<%= dynamic('/bower/moment/min/moment.min.js') %>"></script>
+<script type="text/javascript" src="<%= dynamic('/javascripts/performance/performanceSummary.js') %>"></script>
+
+</body>
+</html>

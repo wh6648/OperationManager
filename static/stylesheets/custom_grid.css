@@ -1,0 +1,39 @@
+
+.ui-jqgrid .ui-jqgrid-labels th {
+    border-right: 1px solid #E1E1E1 !important;
+    text-align: center !important;
+    /*background: #307ecc;*/
+    /*color: #FFF;*/
+}
+.ui-jqgrid-sortable {
+    /*background: #307ecc;*/
+    /*color: #FFF;*/
+}
+
+.ui-jqgrid .ui-jqgrid-hdiv{
+
+    background:#307ecc;
+}
+
+.ui-jqgrid .ui-jqgrid-labels{
+    background:#307ecc;
+}
+
+/**  表头高度   1 */
+.ui-jqgrid .ui-jqgrid-htable th span.ui-jqgrid-resize{
+
+    height: 30px !important;
+}
+/**  表头高度调整后居中   1 */
+.ui-jqgrid .ui-jqgrid-htable th div{
+    padding-top: 8px;
+    padding-bottom: 12px;
+}
+
+.ui-jqgrid-sortable{
+    color: white;
+    font-weight:normal;
+}
+.ui-jqgrid-sortable:hover{
+    color: white
+}

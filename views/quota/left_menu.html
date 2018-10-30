@@ -1,0 +1,62 @@
+<script type="text/javascript">
+    try{ace.settings.check('left_sidebar' , 'fixed')}catch(e){}
+</script>
+
+<div id="processBar" class="hide">
+    <div id="progressbar"></div>
+</div>
+
+<ul class="nav nav-list" id="left_menu">
+    <li class="active open">
+        <a href="javascript:void(0);" class="dropdown-toggle">
+            <i class="menu-icon fa fa-filter"></i>
+            办事处
+            <b class="arrow fa fa-angle-down"></b>
+        </a>
+
+        <b class="arrow"></b>
+        <ul class="submenu" id="departmentList">
+            <li class="" >
+                <a data-id="t2" href="javascript:void(0)" id="">
+                    <span class="menu-text">
+
+                    </span>
+                </a>
+
+                <b class="arrow"></b>
+            </li>
+        </ul>
+    </li>
+
+</ul><!-- /.nav-list -->
+
+<div class="sidebar-toggle sidebar-collapse" id="left_sidebar-collapse">
+    <i class="ace-icon fa fa-angle-double-left" data-icon1="ace-icon fa fa-angle-double-left" data-icon2="ace-icon fa fa-angle-double-right"></i>
+</div>
+
+<!-- /section:basics/sidebar.layout.minimize -->
+<script type="text/javascript">
+    try{ace.settings.check('left_sidebar' , 'collapsed')}catch(e){}
+</script>
+
+<script type="text/javascript" src="../../static/javascripts/quota/left_menu.js"></script>
+
+<script type="text/template" id="deptList_tmp">
+    <li class="departmentReport" data-name="{{DEPTNAME}}"  data-code="{{DEPTCODE}}">
+        <a href="javascript:void(0)">
+            <i class="menu-icon fa fa-caret-right"></i>
+            {{DEPTNAME}}
+        </a>
+    </li>
+</script>
+<input type="hidden" id="hid_departmentCode" value="" />
+<input type="hidden" id="hid_departmentName" value="" />
+<input type="hidden" id="hid_departmentPersonCount" value="" />
+<input type="hidden" id="hid_month_quarter" value="" />
+<input type="hidden" id="hid_month" value="" />
+<input type="hidden" id="hid_quarter" value="" />
+<input type="hidden" id="hid_year" value="" />
+<input type="hidden" id="hid_date_year" value="" />
+<input type="hidden" id="hid_date_year_n" value="" />
+<input type="hidden" id="hid_date_year_2n" value="" />
+<input type="hidden" id="hid_currentReport" value="month" />

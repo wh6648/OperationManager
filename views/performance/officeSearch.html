@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>办事处奖金填报</title>
+
+    <% include ../_required.html %>
+
+    <link rel="stylesheet" href="<%= dynamic('/stylesheets/gh-buttons.css') %>"/>
+    <link rel="stylesheet" href="<%= dynamic('/assets/dataTable/media/css/jquery.dataTables.css') %>" />
+    <!--所有页面都会用到的样式-->
+    <link rel="stylesheet" href="<%= dynamic('/stylesheets/performance/frameworkStyle.css') %>" />
+
+    <link rel="stylesheet" href="<%= dynamic('/stylesheets/performance/officeSearch.css') %>" />
+
+</head>
+<body class="no-skin dt-example" style="overflow-x: hidden"  data-value="manageSearch1">
+
+<% include _performance_header.html %>
+
+<div class="row">
+    <div class="col-sm-12">
+
+        <div class="tabbable">
+            <div class="tabbable tabs-left">
+
+                <div class="sidebar" id="sidebar">
+                    <% include _left_report.html %>
+                </div>
+
+                <div class="main-content">
+                    <div class="breadcrumbs" id="breadcrumbs">
+                        <script type="text/javascript">
+                            try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+                        </script>
+
+                        <ul class="breadcrumb">
+                            <li>
+                                <i class="ace-icon fa fa-home home-icon"></i>
+                                <a href="/site/flowChart?name=绩效考核">Home</a>
+                            </li>
+
+                            <li>
+                                主管申报
+                            </li>
+                            <li class="active">
+                                申报查询
+                                <span id="navi"></span>
+                            </li>
+                        </ul><!-- /.breadcrumb -->
+
+                    </div>
+
+                    <div class="tab-content" id="page-content">
+
+                        <div class="search-select">
+                            <div class="year-quarter-month" style="float: left">
+
+                                <div class="year-select" style="float: left">
+                                    <label class="control-label no-padding-right green select-word">选择时间:&nbsp;</label>
+
+                                    <ul class="button-group">
+                                        <li><a id="year" href="javascript:void(0)" class="button  pill yearGroup" value=""></a></li>
+                                        <li><a id="year_n" href="javascript:void(0)" class="button  pill yearGroup-n" value=""></a></li>
+                                        <li><a id="year_2n" href="javascript:void(0)" class="button  pill yearGroup-n" value=""></a></li>
+                                    </ul>
+                                </div>
+
+                            </div>
+
+                            <ul class="button-group select-quarter" id="quarter" style="display: inline;float: left">
+                                <li><a id="quarter_1" href="javascript:void(0)" class="button pill quarterGroup" role-type="1">一季度</a></li>
+                                <li><a id="quarter_2" href="javascript:void(0)" class="button pill quarterGroup" role-type="2">二季度</a></li>
+                                <li><a id="quarter_3" href="javascript:void(0)" class="button pill quarterGroup" role-type="3">三季度</a></li>
+                                <li><a id="quarter_4" href="javascript:void(0)" class="button pill quarterGroup" role-type="4">四季度</a></li>
+                            </ul>
+
+                        </div>
+
+                        <table id="example" class="display" cellspacing="0" width="100%">
+                            <thead>
+
+                            </thead>
+
+                            <tbody>
+
+                            </tbody>
+                            <tfoot>
+                            <tr>
+                                <th></th>
+                                <th>合计:</th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th>0%</th>
+                                <th>0%</th>
+                                <th></th>
+                            </tr>
+                            </tfoot>
+                        </table>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+</div>
+<div class="time-control" hidden="hidden" data-val="zgsb"></div>
+<div class="render-time" hidden="hidden" data-year="" data-quarter=""></div>
+
+<% include ../_footer.html %>
+
+<script src="/static/assets/js/ace.min.js"></script>
+<!--<script type="text/javascript" src="<%= dynamic('/assets/dataTable/media/js/jquery.js') %>"></script>-->
+<script type="text/javascript" src="<%= dynamic('/assets/dataTable/media/js/jquery.dataTables.js') %>"></script>
+<script type="text/javascript" src="<%= dynamic('/assets/dataTable/resources/syntax/shCore.js') %>"></script>
+<script type="text/javascript" src="<%= dynamic('/assets/dataTable/resources/demo.js') %>"></script>
+
+<script type="text/javascript" src="<%= dynamic('/bower/underscore/underscore.js') %>"></script>
+<script src="/static/javascripts/performance/officeSearch.js"></script>
+<script src="/static/javascripts/performance/note_show.js"></script>
+</body>
+</html>

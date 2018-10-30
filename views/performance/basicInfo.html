@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>人员信息维护</title>
+
+    <meta name="description" content="top menu &amp; navigation" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <link rel="stylesheet" href="/static/assets/css/chosen.css">
+    <% include ../_required.html %>
+    <link rel="stylesheet" href="<%= dynamic('/assets/dataTable/media/css/jquery.dataTables.css') %>" />
+    <link rel="stylesheet" type="text/css" href="<%= dynamic('/stylesheets/performance/dataTables.fixedColumns.css') %>"/>
+    <!--所有页面都会用到的样式-->
+    <link rel="stylesheet" href="<%= dynamic('/stylesheets/performance/frameworkStyle.css') %>"/>
+
+    <style type="text/css" class="init">
+        #lhgcalendar{
+            z-index: 1060;
+        }
+        .lhgcal_leftBottom:
+        #d_t_position_chosen{
+            width: 140px !important;
+        }
+        #d_t_o_name_chosen{
+            width: 140px !important;
+        }
+        .chosen-container .chosen-results{
+            max-height: 150px !important;
+        }
+
+        .my_info_body > div > div{
+            padding-top: 10px;
+            width: 240px;
+        }
+        .my_info_body div .tit+div input{
+            width: 140px;
+        }
+        .my_info_body div .tit{
+            padding-top: 10px;
+            float: left;
+            width: 100px;
+        }
+        .my_info_body > div{
+            padding-left: 10px;
+            padding-right: 20px;
+        }
+        .my_info_body textarea{
+            width: 240px;
+            height: 132px;
+        }
+
+        td span+div.tooltip.fade.top{
+            white-space: normal !important;
+        }
+        /*th {*/
+        /*position: relative;*/
+        /*min-height: 41px;*/
+        /*}*/
+        /*span {*/
+        /*display: block;*/
+        /*position: absolute;*/
+        /*left: 0;*/
+        /*right: 0;*/
+        /*white-space: nowrap;*/
+        /*text-overflow: ellipsis;*/
+        /*overflow: hidden;*/
+        /*}*/
+        table.dataTable{
+            border-collapse: collapse;
+        }
+        #example tbody tr {
+            height: 30px;
+        }
+        table.dataTable thead th, table.dataTable thead td {
+            padding: 2px;
+            border: 1px solid #C7C7C7;
+            text-align: center;
+        }
+        table.dataTable tbody th, table.dataTable tbody td {
+            padding: 4px 10px;
+            /*height: 30px;*/
+        }
+        table.dataTable thead{
+
+            background: #D9E8F7;
+            color: white;
+        }
+        .dataTable>thead>tr>th[class*=sorting_] {
+            color: white;
+        }
+        input {
+            width: 100px;
+            height: 30px;
+        }
+        /*为了让datable表格的检索框固定在导航上－下面三个*/
+        .breadcrumbs {
+            position: absolute;
+            width: 100%;
+            z-index: 1;
+        }
+        .dataTables_filter {
+            top: -5px;
+            right: 0px;
+            position: relative;
+            z-index: 2;
+        }
+        .main-content {
+            position: relative;
+        }
+        .edit{
+            color:green;
+            padding-right: 10px;
+        }
+        .delete{
+            color:red;
+            padding-right: 10px;
+        }
+        .headcolor2{
+            text-align: center;
+            background-color:#88b781;
+        }
+        .headcolor1{
+            text-align: center;
+            background-color:#72b4de;
+        }
+        .headcolor4{
+            text-align: center;
+            background-color:#fdb65b;
+        }
+        .headcolor3{
+            text-align: center;
+            background-color:#cf5b4b;
+        }
+        .dataTable>thead>tr>th.sorting_asc {
+            background-image: -webkit-linear-gradient(top, #72b4de 0, #72b4de 100%);
+            background-image: linear-gradient(to bottom, #72b4de 0, #72b4de 100%);
+            background-repeat: repeat-x;
+        }
+        .more-btn {
+            height: 30px;
+            line-height: 0;
+        }
+        .more-info-dev {
+            display: block !important;
+        }
+        .more-info-hid {
+            display: none;
+        }
+    </style>
+</head>
+<body class="no-skin" style="overflow-x: hidden"  data-value="basicInfo">
+
+<% include _performance_header.html %>
+<div class="modal fade" id="change_info"><!-- /.modalr -->
+    <div class="modal-dialog">
+        <div class="modal-content" >
+            <div class="modal-body">
+                <div>
+                    <div style="font-size: 25px;">修改员工信息：
+                        <button type="button" class="close" data-dismiss="modal" style="font-size: 32px;">
+                            <span aria-hidden="true">×</span>
+                            <span class="sr-only">Close</span>
+                        </button>
+                    </div>
+
+
+
+                    <div class="my_info_body" style="border: solid orange 1px;">
+                        <div style="float: left;">
+                            <input type="hidden" value="" id="d_t_id"/>
+                            <div>
+                                <div class="tit">员工编号</div>
+                                <div><input type="text" value="" id="d_t_code"/></div>
+                                <div style="clear:both;"></div>
+                            </div>
+                            <div>
+                                <div class="tit">姓名</div>
+                                <div><input type="text" value="" id="d_t_name"/></div>
+                            </div>
+                            <div>
+                                <div class="tit">职级</div>
+                                <div>
+                                    <input type="text" value="" id="d_t_rank"/>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="tit">板块</div>
+                                <div><input type="text" value="" disabled="true" id="d_t_name2"/></div>
+                            </div>
+                            <div>
+                                <div class="tit">办事处</div>
+                                <div>
+                                    <select class="chosen-select" id="d_t_o_name">
+
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="tit">归属类</div>
+                                <div><input type="text" value="" id="d_t_lei"/></div>
+                            </div>
+                            <div>
+                                <div class="tit">部门</div>
+                                <div><input type="text" value="" id="d_t_dept"/></div>
+                            </div>
+                            <div>
+                                <div class="tit">组/办</div>
+                                <div><input type="text" value="" id="d_t_group"/></div>
+                            </div>
+                        </div>
+
+                        <div style="float: left;">
+                            <div>
+                                <div class="tit">入职日期</div>
+                                <div><input type="text" value="" id="d_t_in_time"/></div>
+                            </div>
+                            <div>
+                                <div class="tit">转正日期</div>
+                                <div><input type="text" value="" id="d_t_change_time"/></div>
+                            </div>
+                            <div>
+                                <div class="tit">离职时间</div>
+                                <div><input type="text" value="" id="d_t_out_time"/></div>
+                            </div>
+                            <div>
+                                <div class="tit">职位</div>
+                                <div><input type="text" value="" id="d_t_manger" placeholder="主管/员工"/></div>
+                            </div>
+                            <div>
+                                <div class="tit" style="padding-top: 0px">备注</div>
+                                <div><textarea id="d_t_node">sss</textarea></div>
+                            </div>
+                        </div>
+                        <div style="float: left;" class="more-info more-info-hid">
+                            <div>
+                                <div class="tit">基本工资</div>
+                                <div><input type="text" value="" id='basic-money'/></div>
+                            </div>
+                            <div>
+                                <div class="tit">岗位工资</div>
+                                <div><input type="text" value="" id='post-money'/></div>
+                            </div>
+                            <div>
+                                <div class="tit">现场津贴</div>
+                                <div>
+                                    <input type="text" value="" id='scene-money'/>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="tit">其他餐补</div>
+                                <div><input type="text" value="" id='other-food-money'/></div>
+                            </div>
+                        </div>
+                        <div style="float: left;" class="more-info more-info-hid">
+                            <div>
+                                <div class="tit">驻外津贴</div>
+                                <div><input type="text" value="" id='outside-money'/></div>
+                                <div style="clear:both;"></div>
+                            </div>
+                            <div>
+                                <div class="tit">地区补差</div>
+                                <div><input type="text" value="" id='area-money'/></div>
+                            </div>
+                            <div>
+                                <div class="tit">其他补贴</div>
+                                <div>
+                                    <input type="text" value="" id='other-money'/>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="tit">基本薪资总计</div>
+                                <div><input type="text" value="" id='basic-money-sum'/></div>
+                            </div>
+                        </div>
+                        <div style="clear: both;">
+                            <button class="btn btn-success btn-block more-btn">加载更多信息...</button>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <button class="btn btn-primary" id="area_ok">确认修改</button>
+                        <button class="btn btn-primary" id="area_cancle">取消修改</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+
+        <div class="tabbable">
+            <div class="tabbable tabs-left">
+
+                <div class="sidebar" id="sidebar">
+                    <% include _left_report.html %>
+                </div>
+
+                <div class="main-content">
+                    <div class="breadcrumbs" id="breadcrumbs">
+                        <script type="text/javascript">
+                            try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+                        </script>
+
+                        <ul class="breadcrumb">
+                            <li>
+                                <i class="ace-icon fa fa-home home-icon"></i>
+                                <a href="/site/flowChart?name=绩效考核">Home</a>
+                            </li>
+
+                            <li>
+                                人资管理
+                            </li>
+                            <li>
+                                基本数据维护
+                            </li>
+                            <li class="active">
+                                人员信息维护
+                            </li>
+                        </ul><!-- /.breadcrumb -->
+
+                    </div>
+
+                    <div class="tab-content" id="page-content">
+
+                    <table id="example" class="display nowrap" cellspacing="0" width="800px" style="float: left">
+                        <thead>
+                        <tr>
+                            <th rowspan="3" class="headcolor1">操作</th>
+                            <th colspan="6" class="headcolor1">基本信息</th>
+                            <th colspan="4" class="headcolor1">备注</th>
+                            <th rowspan="3" class="headcolor1"></th>
+                            <th rowspan="3" class="headcolor1"></th>
+                            <th rowspan="3" class="headcolor1"></th>
+                        </tr>
+                        <tr>
+                            <th colspan="4" class="headcolor2">管理信息</th>
+                            <th rowspan="2" class="headcolor3">姓名</th>
+                            <th rowspan="2" class="headcolor3">职级</th>
+                            <th colspan="2" class="headcolor4">入职转正日期</th>
+                            <th rowspan="2" class="headcolor2">备注</th>
+                            <th rowspan="2" class="headcolor2">离职时间</th>
+                        </tr>
+                        <tr>
+                            <th class="headcolor2">员工编号</th>
+                            <th class="headcolor2">版块</th>
+                            <th class="headcolor2">办事处</th>
+                            <th class="headcolor2">归属类</th>
+                            <th class="headcolor4">入职日期</th>
+                            <th class="headcolor4">转正日期</th>
+                        </tr>
+                        </thead>
+
+
+                        <tbody>
+
+                        </tbody>
+                    </table>
+
+                        <button class="export-excel">导出excel</button>
+                        <!--<button class="import-excel">导入excel</button>-->
+                        <div id="fileupload-btn" class="btn btn-default btn-sm" class="btn btn-default btn-xs btn-flat pull-right">
+                            <i class="fa fa-plus"></i>
+                            <span>添加文件</span>
+                        </div>
+                        <!--<div style="margin-left: 10px;">-->
+                            <!--<input type="file" id="file" name="file" style="min-width: 200px;" />-->
+                        <!--</div>-->
+                </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<% include ../_footer.html %>
+<script type="text/javascript" src="/static/assets/js/chosen.jquery.min.js"></script>
+<script src="/static/assets/js/ace.min.js"></script>
+<script src="/static/javascripts/lhgcore.min.js"></script>
+<script src="/static/javascripts/lhgcalendar.min.js"></script>
+
+<script type="text/javascript" src="<%= dynamic('/assets/dataTable/media/js/jquery.dataTables.js') %>"></script>
+<script src="/static/javascripts/performance/operateExcel.js"></script>
+<script src="/static/javascripts/performance/fileupload.js"></script>
+<!--<script src="/static/bower/light/light.fileupload.js"></script>-->
+<script type="text/javascript" src="/static/javascripts/performance/dataTables.fixedColumns.min.js"></script>
+<script type="text/javascript" src="/static/javascripts/performance/ajaxfileupload.js"></script>
+<script src="/static/javascripts/performance/basicInfo.js"></script>
+</body>
+</html>

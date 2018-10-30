@@ -1,0 +1,55 @@
+/*****************************************************************/
+/*备注弹出层样式*/
+#change_note{
+    z-index: 2000 !important;
+}
+textarea{
+
+}
+#change_note .modal-dialog{
+    width: 450px;
+}
+/*****************************************************************/
+#example_wrapper {
+    width: 790px !important;
+}
+#example1_wrapper {
+
+}
+.container{
+    margin-left: 0px !important;
+}
+.modal-dialog{
+    width: 880px;
+}
+/*控制表格的高度*/
+table.dataTable tbody th, table.dataTable tbody td {
+    padding: 6px 10px;
+}
+input{
+    width: 100px;
+    height: 30px;
+}
+thead {
+    background: #D9E8F7;
+    color: #307ecc;
+    font-size: 12px;
+}
+/*button样式*/
+.btn-xs {
+    border-width: 0px;
+    margin-right: 2px;
+}
+.edit-input {
+    width: 50px;
+}
+tfoot tr td {
+    color: red;
+}
+/*提交状态*/
+.submit-status-ok {
+    color: green;
+}
+.submit-status {
+    color: #A4A4A5;
+}

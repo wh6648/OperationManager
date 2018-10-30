@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta charset="utf-8" />
+    <title>Dashboard - Ace Admin</title>
+
+    <meta name="description" content="overview &amp; stats" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <% include _required.html %>
+    <script type="text/javascript" src="<%= dynamic('/javascripts/home.js')%>"></script>
+
+    <style>
+
+        .row img{
+            padding: 5px;
+        }
+
+    </style>
+
+
+</head>
+
+<body class="no-skin container" style="height:100%">
+    <div>
+        <input id="groupId" type="text" class="hidden" value="<%= req.session.user.groups%>">
+
+    </div>
+    <div class="row" style="margin:auto;margin-top: 120px">
+
+        <div class="row">
+            <div class="col-sm-1 col-md-1">
+
+            </div>
+
+            <div class="col-sm-6 col-md-4" style="padding-left: 0px;">
+                <a href="javascript:void(0);" title="信风海运业务运营管理平台" target="_blank">
+                    <img class="lazy col-sm-6 col-md-12" style="height: 80px;" src="<%= dynamic('/images/logo-ok.png') %>">
+                </a>
+            </div>
+        </div>
+
+        <!--<div class="space" style="margin-top: 1px;"></div>-->
+
+        <div class="row">
+
+            <div class="col-sm-1 col-md-1">
+
+            </div>
+
+            <!--<div class="row col-sm-6 col-md-10 center">-->
+
+                <!--<div class="col-sm-6 col-md-3">-->
+                    <a href="javascript:void(0);" title="领导驾驶舱" target="_blank">
+                        <img class="lazy col-sm-3 col-md-3" style="height: 150px;" src="<%= dynamic('/images/LingDao.png') %>">
+                    </a>
+                <!--</div>-->
+
+                <!--<div class="col-sm-6 col-md-3">-->
+                    <a href="javascript:void(0);" id="quotaAssess" title="指标考核" target="_blank">
+                        <img class="lazy col-sm-3 col-md-3" style="height: 150px;" src="<%= dynamic('/images/zbkh.png') %>">
+                    </a>
+                <!--</div>-->
+
+                <!--<div class="col-sm-6 col-md-2">-->
+                    <a href="javascript:void(0);" id="operationCenter" title="运营中心" target="_blank">
+                        <img class="lazy col-sm-2 col-md-2" style="height: 150px; width: 146px;" src="<%= dynamic('/images/yyzx.png') %>">
+                    </a>
+                <!--</div>-->
+
+                <!--<div class="col-sm-6 col-md-2">-->
+                    <a href="javascript:void(0);" id="performance" title="绩效考核" target="_blank">
+                        <img class="lazy col-sm-2 col-md-2" style="height: 150px; width: 146px;" src="<%= dynamic('/images/cwzx.png') %>">
+                    </a>
+                <!--</div>-->
+
+            <!--</div>-->
+
+            <div class="col-sm-1 col-md-1">
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row">
+
+        <div class="col-sm-1 col-md-1">
+
+        </div>
+
+        <!--<div class="col-sm-6 col-md-3">-->
+            <a href="javascript:void(0);" title="调度中心" target="_blank">
+                <img class="lazy col-sm-3 col-md-3" style="height: 150px;" src="<%= dynamic('/images/4.png') %>">
+            </a>
+        <!--</div>-->
+
+        <!--<div class="col-sm-6 col-md-2">-->
+            <a href="javascript:void(0);" title="预警中心" target="_blank">
+                <img class="lazy col-sm-2 col-md-2" style="height: 150px; width: 146px;" src="<%= dynamic('/images/yjzx.png') %>">
+            </a>
+        <!--</div>-->
+
+        <!--<div class="col-sm-6 col-md-2">-->
+            <a href="javascript:void(0);" title="舆情中心" target="_blank">
+                <img class="lazy col-sm-2 col-md-2" style="height: 150px; width: 146px;" src="<%= dynamic('/images/yqzx.png') %>" width="300" height="150">
+            </a>
+        <!--</div>-->
+
+        <!--<div class="col-sm-6 col-md-3">-->
+        <a href="javascript:void(0);" title="数据挖掘" target="_blank">
+            <img class="lazy col-sm-3 col-md-3" style="height: 150px;" src="<%= dynamic('/images/sjwj.png') %>">
+        </a>
+        <!--</div>-->
+
+        <div class="col-sm-1 col-md-1">
+
+        </div>
+
+    </div>
+
+    <% include _footer.html %>
+
+</body>
+
+</html>

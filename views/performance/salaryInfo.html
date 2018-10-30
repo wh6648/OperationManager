@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>公司薪酬信息查询</title>
+
+    <meta name="description" content="top menu &amp; navigation" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+    <link rel="stylesheet" href="/static/assets/css/chosen.css">
+    <% include ../_required.html %>
+    <link rel="stylesheet" href="<%= dynamic('/assets/dataTable/media/css/jquery.dataTables.css') %>" />
+    <link rel="stylesheet" href="<%= dynamic('/assets/dataTable/FixedColumns/css/dataTables.fixedColumns.css') %>" />
+    <!--所有页面都会用到的样式-->
+    <link rel="stylesheet" href="<%= dynamic('/stylesheets/performance/frameworkStyle.css') %>"/>
+
+    <link rel="stylesheet" href="<%= dynamic('/stylesheets/performance/salaryInfo.css') %>"/>
+</head>
+<body class="no-skin" style="overflow-x: hidden"  data-value="salaryInfo">
+
+<% include _performance_header.html %>
+
+<div class="row">
+<div class="col-sm-12">
+
+<div class="tabbable">
+<div class="tabbable tabs-left">
+
+    <div class="sidebar" id="sidebar">
+        <% include _left_report.html %>
+    </div>
+
+    <div class="main-content">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <script type="text/javascript">
+                try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+            </script>
+
+            <ul class="breadcrumb">
+                <li>
+                    <i class="ace-icon fa fa-home home-icon"></i>
+                    <a href="/site/flowChart?name=绩效考核">Home</a>
+                </li>
+
+                <li>
+                    人资管理
+                </li>
+                <li class="active">
+                    公司薪酬信息查询
+                </li>
+            </ul><!-- /.breadcrumb -->
+
+        </div>
+
+        <div class="tab-content" id="page-content">
+
+            <div class="search-div">
+                <div class="input-dept search-term search-dept">
+                    <span class="span-name">部门:</span>
+                    <select id="select-dept" class="form-control form-select" style="height:28px;">
+                        <option> -- 请选择 -- </option>
+                    </select>
+                </div>
+                <div class="input-office search-term search-office">
+                    <span class="span-name">办事处:</span>
+                    <select id="select-office" class="form-control form-select" style="height:28px;">
+                        <option> -- 请选择 -- </option>
+                    </select>
+                </div>
+                <div class="input-name search-term search-name">
+                    <span class="span-name">姓名:</span>
+                    <select id="select-name" class="form-control form-select" style="height:28px;">
+                        <option> -- 请选择 -- </option>
+                    </select>
+                </div>
+                <button id="search-btn" class="btn btn-primary search-btn">查询</button>
+            </div>
+
+        <table id="example" class="display nowrap" cellspacing="0" width="100%">
+            <thead>
+            <tr>
+                <th colspan="6" class="headcolor4">基本信息</th>
+                <th colspan="8" class="headcolor4">基本薪资</th>
+                <th colspan="4" class="headcolor4">职级调整前薪资</th>
+                <th colspan="4" class="headcolor4">备注</th>
+                <th colspan="5" class="headcolor4"></th>
+                <th colspan="8" class="headcolor4"></th>
+                <th rowspan="3" class="headcolor4">办事处</th>
+                <th rowspan="3" class="headcolor4">部门</th>
+            </tr>
+            <tr>
+                <th colspan="4" class="headcolor1">管理信息</th>
+                <th rowspan="2" class="headcolor1">姓名</th>
+                <th rowspan="2" class="headcolor1">职级</th>
+                <th rowspan="2" class="headcolor3">基本工资</th>
+                <th rowspan="2" class="headcolor3">岗位工资</th>
+                <th rowspan="2" class="headcolor3">现场津贴</th>
+                <th rowspan="2" class="headcolor3">其他餐补</th>
+                <th rowspan="2" class="headcolor3">驻外津贴</th>
+                <th rowspan="2" class="headcolor3">地区补差</th>
+                <th rowspan="2" class="headcolor3">其他补贴</th>
+                <th rowspan="2" class="headcolor3">基本薪资总计</th>
+                <th rowspan="2" class="headcolor2">2014职级/工资标准</th>
+                <th rowspan="2" class="headcolor2">职级工资总计</th>
+                <th colspan="2" class="headcolor2">职级调整</th>
+
+                <th colspan="2" class="headcolor1">入职转正日期</th>
+                <th rowspan="2" class="headcolor1">备注</th>
+                <th rowspan="2" class="headcolor1">离职时间</th>
+
+                <th colspan="2" class="headcolor1">二季度</th>
+                <th rowspan="2" class="headcolor1">月收入</th>
+                <th rowspan="2" class="headcolor1">奖金环比</th>
+                <th rowspan="2" class="headcolor1">月收入环比</th>
+
+                <th rowspan="2" class="headcolor2">三季度奖金总额</th>
+                <th rowspan="2" class="headcolor2">打分</th>
+                <th rowspan="2" class="headcolor2">调整后打分</th>
+                <th colspan="2" class="headcolor2">三季度</th>
+                <th rowspan="2" class="headcolor2">月收入</th>
+                <th rowspan="2" class="headcolor2">奖金环比</th>
+                <th rowspan="2" class="headcolor2">月收入环比</th>
+            </tr>
+            <tr>
+                <th class="headcolor1">序号</th>
+                <th class="headcolor1">部门</th>
+                <th class="headcolor1">组/办</th>
+                <th class="headcolor1">归属类</th>
+                <th class="headcolor2">工资增加</th>
+                <th class="headcolor2">月收入增加</th>
+                <th class="headcolor1">入职日期</th>
+                <th class="headcolor1">转正日期</th>
+
+                <th class="headcolor1">月奖金</th>
+                <th class="headcolor1">季度合计</th>
+
+                <th class="headcolor2">月奖金</th>
+                <th class="headcolor2">季度合计</th>
+            </tr>
+            </thead>
+
+
+            <tbody>
+            <!--<tr>-->
+                <!--<td>1</td>-->
+                <!--<td>航运部</td>-->
+                <!--<td>箱管组</td>-->
+                <!--<td>鲅鱼圈</td>-->
+                <!--<td>葛楠</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td>2006.10.20</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+            <!--</tr>-->
+            <!--<tr>-->
+                <!--<td>2</td>-->
+                <!--<td>航运部</td>-->
+                <!--<td>箱管组</td>-->
+                <!--<td>鲅鱼圈</td>-->
+                <!--<td>姚浩</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td>2013.07.15</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+            <!--</tr>-->
+            <!--<tr>-->
+                <!--<td>3</td>-->
+                <!--<td>运管中心</td>-->
+                <!--<td>运价组</td>-->
+                <!--<td>鲅鱼圈</td>-->
+                <!--<td>姜震</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td>2015.03.04</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+            <!--</tr>-->
+            <!--<tr>-->
+                <!--<td>４</td>-->
+                <!--<td>航运部</td>-->
+                <!--<td>泉州办</td>-->
+                <!--<td>办事处</td>-->
+                <!--<td>吴鸿运</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td>2014.05.04</td>-->
+                <!--<td></td>-->
+                <!--<td>停职3.19-4.19</td>-->
+                <!--<td>2015.3.19</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+            <!--</tr>-->
+            <!--<tr>-->
+                <!--<td>5</td>-->
+                <!--<td>财务部</td>-->
+                <!--<td>江阴办</td>-->
+                <!--<td>办事处</td>-->
+                <!--<td>唐媛媛</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td>2014.09.03</td>-->
+                <!--<td>2015.03.01</td>-->
+                <!--<td>3.19回鲅鱼圈</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+            <!--</tr>-->
+            <!--<tr>-->
+                <!--<td>6</td>-->
+                <!--<td>运管中心</td>-->
+                <!--<td>核算组</td>-->
+                <!--<td>鲅鱼圈</td>-->
+                <!--<td>田田</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td>2015.03.04</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+            <!--</tr>-->
+            <!--<tr>-->
+                <!--<td>7</td>-->
+                <!--<td>航运部</td>-->
+                <!--<td>船管组</td>-->
+                <!--<td>鲅鱼圈</td>-->
+                <!--<td>黄福升</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td>2011.08.25</td>-->
+                <!--<td></td>-->
+                <!--<td>离职</td>-->
+                <!--<td>2015.01.30</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+            <!--</tr>-->
+            <!--<tr>-->
+                <!--<td>8</td>-->
+                <!--<td>航运部</td>-->
+                <!--<td>潍坊办</td>-->
+                <!--<td>办事处</td>-->
+                <!--<td>程海涛</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td>2010.06.30</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+            <!--</tr>-->
+            <!--<tr>-->
+                <!--<td>9</td>-->
+                <!--<td>航运部</td>-->
+                <!--<td>京唐办</td>-->
+                <!--<td>鲅鱼圈</td>-->
+                <!--<td>李硕石</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td>2012.03.08</td>-->
+                <!--<td></td>-->
+                <!--<td>离职，交接未完</td>-->
+                <!--<td>2015.03.16</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+            <!--</tr>-->
+            <!--<tr>-->
+                <!--<td>10</td>-->
+                <!--<td>航运部</td>-->
+                <!--<td>虎门办</td>-->
+                <!--<td>办事处</td>-->
+                <!--<td>贾鹏飞</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td>2009.07.01</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+            <!--</tr>-->
+            <!--<tr>-->
+                <!--<td>11</td>-->
+                <!--<td>航运部</td>-->
+                <!--<td>虎门办</td>-->
+                <!--<td>办事处</td>-->
+                <!--<td>全慧峰</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td>2013.07.19</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+            <!--</tr>-->
+            <!--<tr>-->
+                <!--<td>12</td>-->
+                <!--<td>大件设备</td>-->
+                <!--<td>设备组</td>-->
+                <!--<td>鲅鱼圈</td>-->
+                <!--<td>苏强</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td>2011.03.02</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+            <!--</tr>-->
+            <!--<tr>-->
+                <!--<td>13</td>-->
+                <!--<td>物流部</td>-->
+                <!--<td>运营组</td>-->
+                <!--<td>鲅鱼圈</td>-->
+                <!--<td>王世强</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td>2014.10.20</td>-->
+                <!--<td>2015.04.01</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+            <!--</tr>-->
+            <!--<tr>-->
+                <!--<td>14</td>-->
+                <!--<td>财务部</td>-->
+                <!--<td>商务组</td>-->
+                <!--<td>鲅鱼圈</td>-->
+                <!--<td>刘斌</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td>2011.03.01</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+            <!--</tr>-->
+            <!--<tr>-->
+                <!--<td>15</td>-->
+                <!--<td>财务部</td>-->
+                <!--<td>会计组</td>-->
+                <!--<td>鲅鱼圈</td>-->
+                <!--<td>崔柄楠</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td>2010.07.20</td>-->
+                <!--<td>2个月</td>-->
+                <!--<td>产假2.25-6.1</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+            <!--</tr>-->
+            <!--<tr>-->
+                <!--<td>16</td>-->
+                <!--<td>人资行政部</td>-->
+                <!--<td>人资组</td>-->
+                <!--<td>鲅鱼圈</td>-->
+                <!--<td>孙玉</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td>2014.10.16</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+            <!--</tr>-->
+            <!--<tr>-->
+                <!--<td>17</td>-->
+                <!--<td>航运部</td>-->
+                <!--<td>乍浦办</td>-->
+                <!--<td>宁波</td>-->
+                <!--<td>唐国龙</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td>2013.05.21</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+            <!--</tr>-->
+            <!--<tr>-->
+                <!--<td>18</td>-->
+                <!--<td>航运部</td>-->
+                <!--<td>京唐办</td>-->
+                <!--<td>鲅鱼圈</td>-->
+                <!--<td>李硕石</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td>2012.03.08</td>-->
+                <!--<td></td>-->
+                <!--<td>离职，交接未完</td>-->
+                <!--<td>2015.03.16</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+            <!--</tr>-->
+            <!--<tr>-->
+                <!--<td>19</td>-->
+                <!--<td>人资行政部</td>-->
+                <!--<td>行政组</td>-->
+                <!--<td>鲅鱼圈</td>-->
+                <!--<td>韩秀才</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td>2013.06.26</td>-->
+                <!--<td></td>-->
+                <!--<td>后勤保障</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+            <!--</tr>-->
+            <!--<tr>-->
+                <!--<td>20</td>-->
+                <!--<td>航运部</td>-->
+                <!--<td>宁波办</td>-->
+                <!--<td>宁波</td>-->
+                <!--<td>周苏芬</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td>2008.03.01</td>-->
+                <!--<td></td>-->
+                <!--<td>长病假</td>-->
+                <!--<td>春节后请假</td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+                <!--<td></td>-->
+            <!--</tr>-->
+            </tbody>
+        </table>
+
+    </div>
+
+    </div>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+<% include ../_footer.html %>
+
+<script src="/static/assets/js/ace.min.js"></script>
+<script type="text/javascript" src="<%= dynamic('/assets/dataTable/media/js/jquery.js') %>"></script>
+<script type="text/javascript" src="<%= dynamic('/assets/dataTable/media/js/jquery.dataTables.js') %>"></script>
+<script type="text/javascript" src="<%= dynamic('/assets/dataTable/FixedColumns/js/dataTables.fixedColumns.js') %>"></script>
+<script type="text/javascript" src="/static/assets/js/chosen.jquery.min.js"></script>
+<script type="text/javascript" src="/static/javascripts/performance/salaryInfo.js"></script>
+
+</body>
+</html>

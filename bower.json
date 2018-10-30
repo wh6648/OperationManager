@@ -1,0 +1,27 @@
+{
+  "name": "bower",
+  "version": "0.0.1",
+  "authors": [
+    "ShotEyes"
+  ],
+  "description": "ShotEyes",
+  "moduleType": [
+    "amd"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "static/light",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "3.1.1",
+    "jquery": "1.10.2",
+    "font-awesome": "4.1.0",
+    "underscore": "1.6.0",
+    "moment": "2.5.1",
+    "alertify.js": "0.3.11"
+  }
+}

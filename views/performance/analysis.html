@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>绩效分析统计</title>
+
+    <meta name="description" content="top menu &amp; navigation" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+    <% include ../_required.html %>
+    <!--所有页面都会用到的样式-->
+    <link rel="stylesheet" href="<%= dynamic('/stylesheets/gh-buttons.css') %>"/>
+    <link rel="stylesheet" href="<%= dynamic('/assets/dataTable/media/css/jquery.dataTables.css') %>" />
+    <link rel="stylesheet" href="<%= dynamic('/stylesheets/performance/frameworkStyle.css') %>"/>
+    <!--<link rel="stylesheet" href="<%= dynamic('/assets/css/kingadmin/main.css') %>"/>-->
+    <link rel="stylesheet" href="<%= dynamic('/assets/css/kingadmin/style-switcher.css') %>"/>
+    <!--饼图-->
+    <link rel="stylesheet" type="text/css" href="/static/assets/css/style.css" media="screen">
+    <!--<link rel="stylesheet" type="text/css" href="/static/assets/css/jquery.easy-pie-chart.css" media="screen">-->
+
+    <style type="text/css" class="widget">
+        .label {
+            background-color: #f9f9f9 !important;
+        }
+        .chart {
+            width: 110px;
+            height: 140px;
+        }
+        .widget {
+            border-width: 1px;
+            border-style: solid;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+            border-color: lightgrey;
+        }
+        .widget .widget-header {
+            padding: 0 10px;
+            height: 35px;
+            border-bottom-width: 1px;
+            border-bottom-style: solid;
+            border-bottom-color: lightgrey;
+            background-color: #eeeeee;
+        }
+        .widget .widget-content {
+            padding: 20px 10px;
+        }
+        .widget .widget-header h3 {
+            display: -moz-inline-stack;
+            display: inline-block;
+            vertical-align: middle;
+            zoom: 1;
+            font-family: "latobold";
+            font-size: 1.1em;
+            margin: 0;
+            line-height: 35px;
+            float: left;
+        }
+        .widget .widget-header .widget-header-toolbar {
+            float: right;
+            width: auto;
+            height: 35px;
+            border-left: 1px solid #dddddd;
+            padding-left: 10px;
+            margin-left: 10px;
+        }
+        .widget .widget-header .widget-header-toolbar .btn-borderless {
+            padding-top: 5px;
+        }
+        .widget .widget-header .widget-header-toolbar .btn, .widget .widget-header .widget-header-toolbar .btn-borderless {
+            display: -moz-inline-stack;
+            display: inline-block;
+            vertical-align: middle;
+            zoom: 1;
+            height: 25px;
+        }
+        .widget .widget-header em {
+            display: none;
+        }
+        .widget .widget-header em {
+            float: left;
+            font-size: 0.9em;
+            color: #a4a4a4;
+            line-height: 35px;
+            margin-left: 4px;
+        }
+        .widget .widget-header .btn-help {
+            float: left;
+            padding: 0;
+            position: relative;
+            top: 3px;
+            left: 3px;
+        }
+        .widget.widget-focus-enabled {
+            z-index: 999;
+            position: relative;
+        }
+
+        .widget .widget-header .widget-header-toolbar .btn-borderless .fa {
+            margin-right: 5px;
+            position: relative;
+            top: 2px;
+        }
+        .widget .widget-header .widget-header-toolbar .btn, .widget .widget-header .widget-header-toolbar .btn-borderless {
+            display: -moz-inline-stack;
+            display: inline-block;
+            vertical-align: middle;
+            zoom: 1;
+            height: 25px;
+        }
+        #focus-overlay {
+            background: rgba(0, 0, 0, 0.95);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 9;
+        }
+    </style>
+
+    <style type="text/css" class="dataTable">
+        table.dataTable thead th, table.dataTable thead td {
+            /* padding: 10px 18px; */
+            padding: 5px;
+        }
+    </style>
+    <style type="text/css" class="chart">
+        #canvas-holder{
+            width:100%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+    <style type="text/css" class="easy-pie-chart">
+        .easy-pie-chart {
+            position: relative;
+            width: 110px;
+            margin: 0 auto;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .easy-pie-chart .percent {
+            display: -moz-inline-stack;
+            display: inline-block;
+            vertical-align: middle;
+            zoom: 1;
+            line-height: 110px;
+            z-index: 2;
+            color: #555555;
+        }
+        .easy-pie-chart .percent:after {
+            content: '万';
+            margin-left: 0.1em;
+            font-size: .8em;
+        }
+    </style>
+
+    <style ype="text/css" class="demo-flot-chart">
+        .sales-chart, .demo-flot-chart {
+            width: 100%;
+            height: 350px;
+        }
+        .donut-label {
+            font-size: 12px;
+            color: #FFF;
+            background: rgba(0, 0, 0, 0.5);
+            text-align: center;
+            padding: 3px;
+        }
+    </style>
+</head>
+<body class="no-skin" style="overflow-x: hidden"  data-value="analysis">
+
+<% include _performance_header.html %>
+
+<div class="row">
+    <div class="col-sm-12">
+
+        <div class="sidebar" id="sidebar">
+            <% include _left_report.html %>
+        </div>
+        <!-- main-content -->
+        <div class="main-content">
+            <div class="breadcrumbs" id="breadcrumbs">
+                <script type="text/javascript">
+                    try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+                </script>
+
+                <ul class="breadcrumb">
+                    <li>
+                        <i class="ace-icon fa fa-home home-icon"></i>
+                        <a href="/site/flowChart?name=绩效考核">Home</a>
+                    </li>
+
+                    <li>
+                        公司会审
+                    </li>
+                    <li class="active">
+                        绩效分析统计
+                    </li>
+                </ul><!-- /.breadcrumb -->
+
+            </div>
+
+            <div class="search-select" style="overflow: hidden;">
+                <div class="year-quarter-month" style="float: left;">
+
+                    <div class="year-select" style="float: left;">
+                        <label class="control-label no-padding-right green select-word">选择时间:&nbsp;</label>
+
+                        <ul class="button-group">
+                            <li><a id="year" href="javascript:void(0)" class="button  pill yearGroup" value=""></a></li>
+                            <li><a id="year_n" href="javascript:void(0)" class="button  pill yearGroup-n" value=""></a></li>
+                            <li><a id="year_2n" href="javascript:void(0)" class="button  pill yearGroup-n" value=""></a></li>
+                        </ul>
+                    </div>
+
+                </div>
+
+                <ul class="button-group select-quarter" id="quarter" style="display: inline;float: left">
+                    <li><a id="quarter_1" href="javascript:void(0)" class="button pill quarterGroup" role-type="1">一季度</a></li>
+                    <li><a id="quarter_2" href="javascript:void(0)" class="button pill quarterGroup" role-type="2">二季度</a></li>
+                    <li><a id="quarter_3" href="javascript:void(0)" class="button pill quarterGroup" role-type="3">三季度</a></li>
+                    <li><a id="quarter_4" href="javascript:void(0)" class="button pill quarterGroup" role-type="4">四季度</a></li>
+                </ul>
+
+            </div>
+
+            <div class="row" style="height: 300px;">
+               <div style="width:45%;;float:left;padding-top:15px;padding-left: 15px; padding-right: 0px;">
+                   <!-- widget -->
+                   <div class="widget">
+                       <div class="widget-header">
+                           <h3><i class="fa fa-bar-chart-o"></i><font class="showYear"></font>年第<font class="showQuarter"></font>季度部门绩效奖金百分比</h3>
+                           <div class="btn-group widget-header-toolbar">
+                               <a href="#"  title="Focus" class="btn-borderless btn-focus"><i class="fa fa-eye"></i></a>
+                               <a href="#" title="Expand/Collapse" class="btn-borderless btn-toggle-expand"><i class="fa fa-chevron-up"></i></a>
+                               <a href="#" title="Remove" class="btn-borderless btn-remove"><i class="fa fa-times"></i></a>
+                           </div>
+                       </div>
+                       <div class="widget-content" style="height: 350px;">
+                            <!--<div class="row" style="">-->
+                                <!--<div id="canvas-holder">-->
+
+                                        <div id="main" style="height:100%; width:100%;"></div>
+
+                                <!--</div>-->
+                            <!--</div>-->
+                       </div>
+
+                   </div>
+                   <!-- /widget -->
+
+               </div>
+               <div style="width:55%; float:left;padding-top:15px;padding-left: 15px; padding-right: 0px;">
+                   <!-- widget -->
+                   <div class="widget">
+                       <div class="widget-header">
+                           <h3><i class="fa fa-bar-chart-o"></i><font class="showYear"></font>年第<font class="showQuarter"></font>季度部门绩效奖金额</h3>
+                           <div class="btn-group widget-header-toolbar">
+                               <a href="#"  title="Focus" class="btn-borderless btn-focus"><i class="fa fa-eye"></i></a>
+                               <a href="#" title="Expand/Collapse" class="btn-borderless btn-toggle-expand"><i class="fa fa-chevron-up"></i></a>
+                               <a href="#" title="Remove" class="btn-borderless btn-remove"><i class="fa fa-times"></i></a>
+                           </div>
+                       </div>
+                       <div class="widget-content" style="height:350px;">
+                           <!--<div class="row" style=" margin-top: 70px;" id="a0d8b">-->
+
+                               <!--<div class="container">-->
+                                   <div class="chart">
+                                       <div class="percentage" data-percent="0"><span></span>万</div>
+                                       <div class="label" style="margin-left: 30px;"></div>
+                                   </div>
+                                   <div class="chart">
+                                       <div class="percentage" data-percent="0"><span></span>万</div>
+                                       <div class="label" style="margin-left: 30px;"></div>
+                                   </div>
+                                   <div class="chart">
+                                       <div class="percentage" data-percent="0"><span></span>万</div>
+                                       <div class="label" style="margin-left: 15px;"></div>
+                                   </div>
+                                   <div class="chart">
+                                       <div class="percentage" data-percent="0"><span></span>万</div>
+                                       <div class="label" style="margin-left: 30px;"></div>
+                                   </div>
+                                   <div style="clear:both;"></div>
+                               <!--</div>-->
+
+                           <!--</div>-->
+
+                       </div>
+
+                   </div>
+                   <!-- /widget -->
+
+               </div>
+           </div>
+            <div class="row">
+                <div style="width:50%;float:left;padding-top:15px;padding-left: 15px; padding-right: 0px;">
+                    <!-- widget -->
+                    <div class="widget">
+                        <div class="widget-header">
+                            <h3><i class="fa fa-bar-chart-o"></i><font class="showYear"></font>年第<font class="showQuarter"></font>季度绩效奖金额度Top10</h3>
+                            <div class="btn-group widget-header-toolbar">
+                                <a href="#" id="ddddd" title="Focus" class="btn-borderless btn-focus"><i class="fa fa-eye"></i></a>
+                                <a href="#" title="Expand/Collapse" class="btn-borderless btn-toggle-expand"><i class="fa fa-chevron-up"></i></a>
+                                <a href="#" title="Remove" class="btn-borderless btn-remove"><i class="fa fa-times"></i></a>
+                            </div>
+                        </div>
+                        <div class="widget-content">
+                            <table id="example1" class="display" cellspacing="0" width="100%">
+                                <thead>
+
+                                </thead>
+
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                    <!-- /widget -->
+
+                </div>
+
+                <div style="width:50%;float:left;padding-top:15px;padding-left: 15px; padding-right: 0px;">
+                    <!-- widget -->
+                    <div class="widget">
+                        <div class="widget-header">
+                            <h3><i class="fa fa-bar-chart-o"></i><font class="showYear"></font>年第<font class="showQuarter"></font>季度绩效奖金额度Top-10</h3>
+                            <div class="btn-group widget-header-toolbar">
+                                <a href="#" id="" title="Focus" class="btn-borderless btn-focus"><i class="fa fa-eye"></i></a>
+                                <a href="#" title="Expand/Collapse" class="btn-borderless btn-toggle-expand"><i class="fa fa-chevron-up"></i></a>
+                                <a href="#" title="Remove" class="btn-borderless btn-remove"><i class="fa fa-times"></i></a>
+                            </div>
+                        </div>
+                        <div class="widget-content">
+                            <table id="example2" class="display" cellspacing="0" width="100%">
+                                <thead>
+
+                                </thead>
+
+                                <tbody>
+
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                    <!-- /widget -->
+
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div style="width:50%;float:left;padding-top:15px;padding-left: 15px; padding-right: 0px;">
+                    <!-- widget -->
+                    <div class="widget">
+                        <div class="widget-header">
+                            <h3><i class="fa fa-bar-chart-o"></i><font class="showYear"></font>年第<font class="showQuarter"></font>季度航线绩效奖金同比环比</h3>
+                            <div class="btn-group widget-header-toolbar">
+                                <a href="#" id="tour-focus" title="Focus" class="btn-borderless btn-focus"><i class="fa fa-eye"></i></a>
+                                <a href="#" title="Expand/Collapse" class="btn-borderless btn-toggle-expand"><i class="fa fa-chevron-up"></i></a>
+                                <a href="#" title="Remove" class="btn-borderless btn-remove"><i class="fa fa-times"></i></a>
+                            </div>
+                        </div>
+                        <div class="widget-content">
+                            <table id="example3" class="display" cellspacing="0" width="100%">
+                                <thead>
+                                </thead>
+                                <tbody>
+
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                    <!-- /widget -->
+
+                </div>
+
+                <div style="width:50%;float:left;padding-top:15px;padding-left: 15px; padding-right: 0px;">
+                    <!-- widget -->
+                    <div class="widget">
+                        <div class="widget-header">
+                            <h3><i class="fa fa-bar-chart-o"></i><font class="showYear"></font>年第<font class="showQuarter"></font>季度物流绩效奖金同比环比</h3>
+                            <div class="btn-group widget-header-toolbar">
+                                <a href="#" id="tour-focus2" title="Focus" class="btn-borderless btn-focus"><i class="fa fa-eye"></i></a>
+                                <a href="#" title="Expand/Collapse" class="btn-borderless btn-toggle-expand"><i class="fa fa-chevron-up"></i></a>
+                                <a href="#" title="Remove" class="btn-borderless btn-remove"><i class="fa fa-times"></i></a>
+                            </div>
+                        </div>
+                        <div class="widget-content">
+                            <table id="example4" class="display" cellspacing="0" width="100%">
+                                <thead>
+
+                                </thead>
+
+                                <tbody>
+
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                    <!-- /widget -->
+
+                </div>
+
+            </div>
+
+        </div>
+        <!-- /main-content -->
+
+
+    </div>
+</div>
+<% include ../_footer.html %>
+
+
+<script src="/static/assets/js/ace.min.js"></script>
+<script type="text/javascript" src="<%= dynamic('/assets/dataTable/media/js/jquery.dataTables.js') %>"></script>
+<script type="text/javascript" src="<%= dynamic('/assets/js/kingadmin/deliswitch.js') %>"></script>
+<script type="text/javascript" src="<%= dynamic('/assets/js/kingadmin/king-common.js') %>"></script>
+<script type="text/javascript" src="<%= dynamic('/assets/js/kingadmin/bootstrap-tour.custom.js') %>"></script>
+<script type="text/javascript" src="<%= dynamic('/assets/js/chart/Chart.Core.js') %>"></script>
+<script type="text/javascript" src="<%= dynamic('/assets/js/chart/Chart.Doughnut.js') %>"></script>
+
+<script type="text/javascript" src="<%= dynamic('/assets/js/chart/Chart.js') %>"></script>
+
+<script type="text/javascript" src="<%= dynamic('/assets/js/chart/jquery.easypiechart.min.js') %>"></script>
+
+<!--大饼-->
+<script type="text/javascript" src="/static/assets/js/1-6-10.esl.js"></script>
+<script type="text/javascript" src="/static/assets/js/echarts.js"></script>
+<!--小饼-->
+<!--<script type="text/javascript" src="/static/assets/js/html5.js"></script>-->
+<script type="text/javascript" src="/static/assets/js/excanvas.js"></script>
+<script type="text/javascript" src="/static/assets/js/jquery.easy-pie-chart.js"></script>
+
+<script type="text/javascript" src="<%= dynamic('/assets/js/chart/jquery.flot.min.js') %>"></script>
+<script type="text/javascript" src="<%= dynamic('/assets/js/chart/jquery.flot.time.min.js') %>"></script>
+<script type="text/javascript" src="<%= dynamic('/assets/js/chart/jquery.flot.pie.min.js') %>"></script>
+<script type="text/javascript" src="<%= dynamic('/assets/js/chart/jquery.sparkline.js') %>"></script>
+
+
+<script type="text/javascript" src="/static/javascripts/performance/analysis.js"></script>
+
+</body>
+</html>

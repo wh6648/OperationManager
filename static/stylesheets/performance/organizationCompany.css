@@ -1,0 +1,19 @@
+body {
+    padding-top: 0px;
+}
+
+#page-content {
+    /*background: url('../../images/bkgd.png') repeat top left;*/
+    background: #CFEAEA;
+    min-height: 550px;
+}
+
+.jOrgChart .node {
+    background-color: #E8F5E6;
+}
+
+table {
+    margin-left: auto;
+    margin-right: auto;
+}
+

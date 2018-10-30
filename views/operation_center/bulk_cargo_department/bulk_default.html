@@ -1,0 +1,20 @@
+<div class="row">
+
+    <div class="col-xs-12" id="report_frame">
+
+        <!--<iframe id="reportFrame" class="col-xs-12" style="min-height: 600px;"  src="http://115.28.50.129:8075/WebReport/ReportServer?reportlet=rpt%2F%5B5468%5D%5B62a5%5D%5B5206%5D%5B6790%5D.cpt&%5B5e74%5D=&%5B5468%5D="></iframe>-->
+
+    </div>
+</div>
+<input type="hidden" id="hid_year" value="" />
+<input type="hidden" id="hid_month" value="" />
+
+<script type="text/template" id="tmplList_reportFrame">
+    <iframe id="reportFrame" class="col-xs-12" style="min-height: 600px;"  src=""></iframe>
+</script>
+
+<div hidden="hidden" id="tmpHidReport">
+    <iframe id="hidReport" class="col-xs-12" style="min-height: 600px;"  src="http://115.28.50.129:8075/WebReport/ReportServer?op=fr_auth&cmd=ah_login&fr_username=admin&fr_password=abc123"></iframe>
+</div>
+
+<script type="text/javascript" src="../../../static/javascripts/operation_center/bulk_cargo_department/bulk_default.js"></script>

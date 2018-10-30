@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" type="image/ico" href="http://www.datatables.net/favicon.ico">
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=2.0">
+
+    <title>DataTables example - Live DOM ordering</title>
+    <link rel="stylesheet" href="<%= dynamic('/assets/dataTable/media/css/jquery.dataTables.css') %>" />
+    <link rel="stylesheet" href="<%= dynamic('/assets/dataTable/resources/syntax/shCore.css') %>"/>
+    <link rel="stylesheet" href="<%= dynamic('/assets/dataTable/resources/demo.css') %>" />
+
+    <style type="text/css" class="init">
+        .dataTables_wrapper{
+            width:900px;
+        }
+        table{padding-top:10px;}
+        thead {
+            background: #1E90FF;
+            color: white;
+            font-size: 12px;
+        }
+    </style>
+    <script type="text/javascript" src="<%= dynamic('/assets/dataTable/media/js/jquery.js') %>"></script>
+    <script type="text/javascript" src="<%= dynamic('/assets/dataTable/media/js/jquery.dataTables.js') %>"></script>
+    <script type="text/javascript" src="<%= dynamic('/assets/dataTable/resources/syntax/shCore.js') %>"></script>
+    <script type="text/javascript" src="<%= dynamic('/assets/dataTable/resources/demo.js') %>"></script>
+
+    <script type="text/javascript" language="javascript" class="init">
+
+
+        /* Create an array with the values of all the input boxes in a column */
+        $.fn.dataTable.ext.order['dom-text'] = function  ( settings, col )
+        {
+            alert("123");
+            return this.api().column( col, {order:'index'} ).nodes().map( function ( td, i ) {
+                return $('input', td).val();
+            } );
+        }
+
+        /* Create an array with the values of all the input boxes in a column, parsed as numbers */
+        $.fn.dataTable.ext.order['dom-text-numeric'] = function  ( settings, col )
+        {
+            return this.api().column( col, {order:'index'} ).nodes().map( function ( td, i ) {
+                return $('input', td).val() * 1;
+            } );
+        }
+
+        /* Create an array with the values of all the select options in a column */
+        $.fn.dataTable.ext.order['dom-select'] = function  ( settings, col )
+        {
+            return this.api().column( col, {order:'index'} ).nodes().map( function ( td, i ) {
+                return $('select', td).val();
+            } );
+        }
+
+        /* Create an array with the values of all the checkboxes in a column */
+        $.fn.dataTable.ext.order['dom-checkbox'] = function  ( settings, col )
+        {
+            return this.api().column( col, {order:'index'} ).nodes().map( function ( td, i ) {
+                return $('input', td).prop('checked') ? '1' : '0';
+            } );
+        }
+
+        /* Initialise the table with the required column ordering data types */
+        $(document).ready(function() {
+            $('#example').dataTable( {
+                "bPaginate": true,//分页按钮
+                "bLengthChange": true,//每行显示记录数
+                "bFilter": true,//搜索栏
+                "bSort": true,//排序
+                "bInfo": true,//Showing 1 to 10 of 23 entries 总记录数没也显示多少等信息
+                "bAutoWidth": false,
+                //"dom": 'lrtip'  ,//没有检索元素
+                'dom': '<"float_left"f>r<"float_right"l>tip',
+                "columns": [
+                    {"title":"姓名","width":"80px"},
+                    {"title":"员工号","width":"80px"},
+                    { "title":"百分比","orderDataType": "dom-text","width":"80px" },
+                    { "title":"备注","orderDataType": "dom-text" ,"width":"80px"},
+                    { "title":"上级百分比","width":"80px" },
+                    { "title":"上级备注"}
+
+                ],
+                "columnDefs": [
+                    {
+                        "targets": [2],
+                        "data": "操作",
+                        "render": function () {
+                            var ss = "<input type=\"text\" id=\"row-1-position\" name=\"row-1-position\" value=\"12.2%\">";
+                            return  ss;
+                        }
+                    },
+                    {
+                        "targets": [3],
+                        "data": "操作",
+                        "render": function () {
+                            var ss = "<input type=\"text\" id=\"row-1-position\" name=\"row-1-position\" value=\"Architect\">";
+                            return  ss;
+                        }
+                    }
+                ],
+                'language': {
+                    'emptyTable': '没有数据',
+                    'loadingRecords': '加载中...',
+                    'processing': '查询中...',
+                    'search': '检索:',
+                    'lengthMenu': '每页 _MENU_ 件',
+                    'zeroRecords': '没有数据',
+                    'paginate': {
+                        'first':      '第一页',
+                        'last':       '最后一页',
+                        'next':       '',
+                        'previous':   ''
+                    },
+                    'info': '第 _PAGE_ 页 / 总 _PAGES_ 页',
+                    'infoEmpty': '没有数据',
+                    'infoFiltered': '(过滤总件数 _MAX_ 条)'
+                }
+
+
+            } );
+        } );
+
+
+    </script>
+</head>
+
+<body class="dt-example">
+<div class="container">
+    <section>
+        <h1>绩效填报<span>2015年第三季度</span></h1>
+
+        <table id="example" class="display" cellspacing="0" width="100%">
+            <thead>
+
+            </thead>
+
+            <tbody>
+            <tr>
+                <td>王芳</td>
+                <td>12000</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>刘东</td>
+                <td>13060</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>李华</td>
+                <td>12398</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>张东</td>
+                <td>12343</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>周文伟</td>
+                <td>14537</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>李东方</td>
+                <td>16689</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>郭峰</td>
+                <td>18532</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>王实甫</td>
+                <td>12478</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>周森锋</td>
+                <td>12479</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>韩词</td>
+                <td>18734</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>黛妮思</td>
+                <td>19734</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>赵四季</td>
+                <td>13657</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>刘树蜂</td>
+                <td>12567</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>石莎瓦</td>
+                <td>13234</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
+
+
+    </section>
+</div>
+
+
+</body>
+</html>

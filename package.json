@@ -1,0 +1,32 @@
+{
+	"name": "OperationManager",
+	"version": "0.0.1",
+	"description": "nodejs-based light operation manager",
+	"main": "index.js",
+	"scripts": {
+		"start": "node app"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/wh6648/OperationManager.git"
+	},
+	"keywords": [
+		"light",
+		"e-commerce"
+	],
+	"author": "wh6648@hotmail.com",
+	"bin": {
+		"url": "https://github.com/wh6648/OperationManager/issues"
+	},
+	"license": "MIT",
+	"dependencies": {
+		"light-framework": "0.0.6",
+		"light-model": "0.0.6"
+	},
+	"devDependencies": {
+		"excel": "0.1.4",
+		"officegen": "0.2.9",
+		"mocha": "*",
+		"ejsexcel": "1.6.7"
+	}
+}

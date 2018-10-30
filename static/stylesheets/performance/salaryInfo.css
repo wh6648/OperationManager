@@ -1,0 +1,106 @@
+.dataTable>thead>tr>th[class*=sorting_] {
+    color: black;
+}
+table.dataTable{
+    border-collapse: collapse;
+}
+tbody tr {
+    height: 30px;
+}
+table.dataTable thead th, table.dataTable thead td {
+    padding: 2px;
+    border: 1px solid #C7C7C7;
+}
+table.dataTable tbody th, table.dataTable tbody td {
+    padding: 4px 10px;
+}
+.edit{
+    color:green;
+    padding-right: 10px;
+}
+.delete{
+    color:red;
+    padding-right: 10px;
+}
+input {
+    width: 100px;
+    height: 30px;
+}
+/*为了让datable表格的检索框固定在导航上*/
+.breadcrumbs {
+    position: absolute;
+    width: 100%;
+    z-index: 1;
+}
+.dataTables_filter {
+    top: 5px;
+    right: 0px;
+    position: absolute;
+    z-index: 2;
+}
+.main-content {
+    position: relative;
+}
+/*表头粗细*/
+table.dataTable thead th {
+    font-weight: normal;
+}
+/*表头字颜色*/
+table.dataTable thead {
+    color: white;
+}
+.dataTable>thead>tr>th[class*=sorting_] {
+    color: white;
+}
+.headcolor1{
+    text-align: center;
+    background-color:#88b781;
+}
+.headcolor4{
+    text-align: center;
+    background-color:#72b4de;
+}
+.headcolor3{
+    text-align: center;
+    background-color:#fdb65b;
+}
+.headcolor2{
+    text-align: center;
+    background-color:#cf5b4b;
+}
+
+.dataTables_wrapper {
+    position: static;
+    clear: none;
+}
+.search-div {
+    margin-top: 40px;
+    width: 100%;
+    min-width: 800px;
+}
+.input-dept, .input-office, .input-name {
+    float: left;
+}
+.search-div>div {
+    width: 200px;
+}
+.span-name {
+    float: left;
+    width:40px;
+    line-height: 28px;
+}
+.form-select {
+    width:150px;
+}
+.search-office, .search-name {
+    margin-left: 40px;
+}
+.search-btn {
+    height:30px;
+    margin-left: 50px;
+    line-height: 0px;
+}
+
+#example_wrapper {
+    margin-top: 5px;
+}

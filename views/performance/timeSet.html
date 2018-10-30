@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>系统时间设置</title>
+
+    <meta name="description" content="top menu &amp; navigation" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+    <% include ../_required.html %>
+    <link rel="stylesheet" href="<%= dynamic('/stylesheets/gh-buttons.css') %>"/>
+    <link rel="stylesheet" href="<%= dynamic('/assets/dataTable/media/css/jquery.dataTables.css') %>" />
+    <link rel="stylesheet" href="<%= dynamic('/assets/dataTable/resources/syntax/shCore.css') %>"/>
+    <!--所有页面都会用到的样式-->
+    <link rel="stylesheet" href="<%= dynamic('/stylesheets/performance/frameworkStyle.css') %>"/>
+
+    <link rel="stylesheet" href="<%= dynamic('/stylesheets/performance/timeSet.css') %>"/>
+
+</head>
+<body class="no-skin" style="overflow-x: hidden" data-value="timeSet">
+
+<% include _performance_header.html %>
+
+<div class="modal fade" id="change_note"><!-- /.modalr -->
+    <div class="modal-dialog">
+        <div class="modal-content" >
+            <div class="modal-body">
+                <div>
+                    <div style="font-size: 25px;">修改备注：</div>
+                    <div><textarea class="note_area"></textarea></div>
+                    <div style="text-align: right;">
+                        <button class="btn btn-primary" id="area_ok">确认修改</button>
+                        <button class="btn btn-primary" id="area_cancle">取消修改</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+
+        <div class="tabbable">
+            <div class="tabbable tabs-left">
+
+                <div class="sidebar" id="sidebar">
+                    <% include _left_report.html %>
+                </div>
+
+                <div class="main-content">
+                    <!--<input id="runcode_1">-->
+                    <!--<input id="runcode_2">-->
+                    <div class="breadcrumbs" id="breadcrumbs">
+                        <script type="text/javascript">
+                            try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+                        </script>
+
+                        <ul class="breadcrumb">
+                            <li>
+                                <i class="ace-icon fa fa-home home-icon"></i>
+                                <a href="/site/flowChart?name=绩效考核">Home</a>
+                            </li>
+
+                            <li>
+                                人资管理
+                            </li>
+                            <li>
+                                基本数据维护
+                            </li>
+                            <li class="active">
+                                系统时间设置
+                            </li>
+                        </ul><!-- /.breadcrumb -->
+
+                    </div>
+
+                    <div class="tab-content" id="page-content">
+
+                        <div class="search-select">
+                            <div id="showNowTime" style="float:left; font-size:23px; font-weight: bolder; color:#6fb3e0; ">
+                            </div>
+                            <button class="btn btn-info btn-start-end btn-start" id="start-btn" type="button" disabled="disabled">
+                                开始
+                            </button>
+                            <button class="btn btn-info btn-start-end btn-end" id="end-btn" type="button" disabled="disabled">
+                                结束
+                            </button>
+
+                        </div>
+
+                        <div class="container">
+                        <section>
+                            <h1><span style="font-size: large"></span></h1>
+
+                            <table id="example" class="display" cellspacing="0" width="100%">
+                                <thead>
+
+                                </thead>
+
+                                <tbody>
+
+                                </tbody>
+                            </table>
+
+                        </section>
+                        <!--<div>-->
+                            <!--<button class="btn btn-info" id="commit_btn" type="button" style="float: right">-->
+                                <!--确认-->
+                            <!--</button>-->
+                        <!--</div>-->
+                    </div>
+
+                </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+<div class="render-time" hidden="hidden" data-year="" data-quarter=""></div>
+
+<% include ../_footer.html %>
+
+<!--<script type="text/javascript" src="<%= dynamic('/assets/dataTable/media/js/jquery.js') %>"></script>-->
+<script type="text/javascript" src="<%= dynamic('/assets/dataTable/media/js/jquery.dataTables.js') %>"></script>
+<script type="text/javascript" src="<%= dynamic('/assets/dataTable/resources/syntax/shCore.js') %>"></script>
+<script type="text/javascript" src="<%= dynamic('/assets/dataTable/resources/demo.js') %>"></script>
+<script src="/static/assets/js/ace.min.js"></script>
+<script src="/static/javascripts/lhgcore.min.js"></script>
+<script src="/static/javascripts/lhgcalendar.min.js"></script>
+<script src="/static/javascripts/performance/timeSet.js"></script>
+<script src="/static/javascripts/performance/note_show.js"></script>
+</body>
+</html>

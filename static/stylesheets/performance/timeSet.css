@@ -1,0 +1,104 @@
+.steps {
+    list-style: none;
+    display: table;
+    width: 700px;
+    padding: 0;
+    margin: 0;
+    position: relative;
+}
+.steps li {
+    display: table-cell;
+    text-align: center;
+    width: 1%;
+}
+.steps li.active:before, .steps li.complete:before, .steps li.active .step, .steps li.complete .step {
+    border-color: #5293c4;
+}
+.steps li:before {
+    display: block;
+    content: "";
+    width: 100%;
+    height: 1px;
+    font-size: 0;
+    overflow: hidden;
+    border-top: 4px solid #CED1D6;
+    position: relative;
+    top: 21px;
+    z-index: 1;
+}
+.steps li .step {
+    border: 5px solid #ced1d6;
+    color: #546474;
+    font-size: 15px;
+    border-radius: 100%;
+    background-color: #FFF;
+    position: relative;
+    z-index: 2;
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    /*line-height: 30px;*/
+    text-align: center;
+}
+.steps li.complete .title, .steps li.active .title {
+    color: #2b3d53;
+}
+.steps li .title {
+    display: block;
+    margin-top: 4px;
+    max-width: 100%;
+    color: #949ea7;
+    font-size: 14px;
+    z-index: 104;
+    text-align: center;
+    table-layout: fixed;
+    word-wrap: break-word;
+}
+.steps li:first-child:before {
+    max-width: 51%;
+    left: 50%;
+}
+.container{
+    width: 800px;
+    margin-left: 0px !important;
+}
+input {
+    width: 130px;
+    height: 22px;
+}
+thead {
+    background: #D9E8F7;
+    color: #307ecc;
+    font-size: 12px;
+}
+/*控制表格的高度*/
+table.dataTable tbody th, table.dataTable tbody td {
+    padding: 4px 10px;
+}
+/*年季度月选择样式*/
+.year-quarter-month {
+    width: 230px;
+    float: left;
+    z-index: 0;
+    position: relative;
+}
+.select-month, .select-quarter {
+    z-index: 0;
+    width: 900px;
+    position: relative;
+}
+.year-select {
+    margin-right: 13px;
+    float:left
+}
+.select-word {
+    top: -8px;
+    position: relative;
+}
+.btn-start-end {
+    height: 35px;
+    width: 55px;
+    border: 0px solid #FFF;
+    padding: 5px 0px;
+    margin-left: 10px;
+}

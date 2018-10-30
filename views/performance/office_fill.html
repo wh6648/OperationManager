@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>办事处奖金填报</title>
+
+    <% include ../_required.html %>
+
+    <link rel="stylesheet" href="<%= dynamic('/assets/dataTable/media/css/jquery.dataTables.css') %>" />
+    <!--所有页面都会用到的样式-->
+    <link rel="stylesheet" href="<%= dynamic('/stylesheets/performance/frameworkStyle.css') %>" />
+
+    <link rel="stylesheet" href="<%= dynamic('/stylesheets/performance/office_fill.css') %>" />
+
+    <style type="text/css">
+        #navi {
+            color: green;
+        }
+        #button_keep, #commit-true {
+            height: 30px;
+            line-height: 0px;
+        }
+    </style>
+</head>
+<body class="no-skin dt-example" style="overflow-x: hidden"  data-value="manage1">
+
+<% include _performance_header.html %>
+
+<div class="modal fade" id="change_note"><!-- /.modalr -->
+    <div class="modal-dialog">
+        <div class="modal-content" >
+            <div class="modal-body">
+                <div>
+                    <div style="font-size: 25px;">修改备注：</div>
+                    <div><textarea class="note_area"></textarea></div>
+                    <div style="text-align: right;">
+                        <button class="btn btn-primary" id="area_ok">确认修改</button>
+                        <button class="btn btn-primary" id="area_cancle">取消修改</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+
+        <div class="tabbable">
+            <div class="tabbable tabs-left">
+
+                <div class="sidebar" id="sidebar">
+                    <% include _left_report.html %>
+                </div>
+
+                <div class="main-content">
+                    <div class="breadcrumbs" id="breadcrumbs">
+                        <script type="text/javascript">
+                            try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+                        </script>
+
+                        <span style="float: right;font-size: 16px;">
+                            <strong style="color:green;">距离结束还有</strong>
+                            <strong style="color:red;">
+                                <!--倒计时模块-->
+                                <div class="time-item" style="display: inline;">
+                                    <span id="day_show">0天</span>
+                                    <strong id="hour_show">0时</strong>
+                                    <strong id="minute_show">0分</strong>
+                                    <strong id="second_show">0秒</strong>
+                                </div>
+                            </strong>
+
+                        </span>
+
+                        <ul class="breadcrumb">
+                            <li>
+                                <i class="ace-icon fa fa-home home-icon"></i>
+                                <a href="/site/flowChart?name=绩效考核">Home</a>
+                            </li>
+
+                            <li>
+                                主管申报
+                            </li>
+                            <li class="active">
+                                主管申报
+                                <span id="navi"></span>
+                            </li>
+                        </ul><!-- /.breadcrumb -->
+
+                    </div>
+
+                    <div class="tab-content" id="page-content">
+
+                        <table id="example" class="display" cellspacing="0" width="100%">
+                            <thead>
+
+                            </thead>
+
+                            <tbody>
+
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th></th>
+                                    <th>合计:</th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th>0%</th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                    </div>
+                    <button class="btn btn-primary btn-hr-distribution" id="button_keep" style="margin-left: 10px;">保存</button>
+                    <button class="btn btn-primary" id="commit-true" style="margin-left: 10px;">提交</button>
+
+                    <span class="label label-pink arrowed sub-true" style="display: none;">已提交</span>
+                    <span class="label arrowed sub-false" style="display: none;">未提交</span>
+                </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+<div class="time-control" hidden="hidden" data-val="zgsb"></div>
+<div class="render-time" hidden="hidden" data-year="" data-quarter=""></div>
+
+<% include ../_footer.html %>
+
+<script src="/static/assets/js/ace.min.js"></script>
+<!--<script type="text/javascript" src="<%= dynamic('/assets/dataTable/media/js/jquery.js') %>"></script>-->
+<script type="text/javascript" src="<%= dynamic('/assets/dataTable/media/js/jquery.dataTables.js') %>"></script>
+<script type="text/javascript" src="<%= dynamic('/assets/dataTable/resources/syntax/shCore.js') %>"></script>
+<script type="text/javascript" src="<%= dynamic('/assets/dataTable/resources/demo.js') %>"></script>
+
+<script type="text/javascript" src="/static/javascripts/performance/jquery.time_show_self.js"></script>
+<script type="text/javascript" src="<%= dynamic('/bower/underscore/underscore.js') %>"></script>
+<script src="/static/javascripts/performance/timeControl.js"></script>
+<script src="/static/javascripts/performance/office_fill.js"></script>
+<script src="/static/javascripts/performance/note_show.js"></script>
+</body>
+</html>

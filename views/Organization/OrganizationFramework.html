@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>组织结构</title>
+    <link rel="stylesheet" href="/views/organization/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/views/organization/css/jquery.jOrgChart.css"/>
+    <link rel="stylesheet" href="/views/organization/css/custom.css"/>
+
+    <link rel="stylesheet" href="/views/organization/css/organizationTree.css"/>
+    <!--<link href="css/prettify.css" type="text/css" rel="stylesheet" />-->
+
+    <script type="text/javascript" src="/static/assets/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/assets/js/jquery-ui.min.js"></script>
+
+    <script src="/views/organization/jquery.jOrgChart.js"></script>
+
+    <script>
+        jQuery(document).ready(function() {
+            $("#org").jOrgChart({
+                chartElement : '#chart',
+                dragAndDrop  : true
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1> 组织结构图 </h1>
+    <ul id="org" style="display:none">
+        <li>
+            集团
+            <ul>
+                <li id="beer">A公司
+                    <ul>
+                        <li>山东区域
+                            <p>大连办事处</p>
+                            <p>鲅鱼圈办事处</p>
+                            <p>宁波办事处</p>
+                        </li>
+                    </ul>
+                </li>
+                <li>B公司
+                    <a href="#"><div style="padding:5px;">about</div></a>
+                    <ul>
+                        <li>华北·东北区域
+                            <p>大连办事处</p>
+                            <p>鲅鱼圈办事处</p>
+                            <p>宁波办事处</p>
+                        </li>
+                        <li>
+                            <a href="#" target="_blank">物流部</a>
+                        </li>
+                        <li>华北·东北区域
+                            <p>大连办事处</p>
+                            <p>鲅鱼圈办事处</p>
+                            <p>宁波办事处</p>
+                        </li>
+                    </ul>
+                </li>
+                <li>C公司
+                    <ul>
+                        <li>上海·江阴区域
+                            <p>大连办事处</p>
+                            <p>鲅鱼圈办事处</p>
+                            <p>宁波办事处</p>
+                        </li>
+                    </ul>
+                </li>
+                <li class="collapsed">D公司
+                    <ul>
+                        <li>东南·华南区域</li>
+                        <li>东南·华南区域
+                            <ul>
+                                <li>测试
+                                    <p>aaaaaaa</p>
+                                    <p>aaaaaaa</p>
+                                </li>
+                                <li>ceshi</li>
+                            </ul>
+                        </li>
+                        <li>东南·华南区域</li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+    </ul>
+
+    <div id="chart" class="orgChart"></div>
+
+    <script>
+        jQuery(document).ready(function() {
+
+            /* Custom jQuery for the example */
+            $("#show-list").click(function(e){
+                e.preventDefault();
+
+                $('#list-html').toggle('fast', function(){
+                    if($(this).is(':visible')){
+                        $('#show-list').text('Hide underlying list.');
+                        $(".topbar").fadeTo('fast',0.9);
+                    }else{
+                        $('#show-list').text('Show underlying list.');
+                        $(".topbar").fadeTo('fast',1);
+                    }
+                });
+            });
+
+            $('#list-html').text($('#org').html());
+
+            $("#org").bind("DOMSubtreeModified", function() {
+                $('#list-html').text('');
+
+                $('#list-html').text($('#org').html());
+
+            });
+        });
+    </script>
+</body>
+</html>

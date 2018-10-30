@@ -1,0 +1,53 @@
+.tab-content {
+    padding: 10px 10px;
+    border: none;
+}
+.main-content {
+    min-height: 500px;
+}
+
+/*---左右拖拽窗口不会出现灰色部分---*/
+.row {
+    margin-left: 0px;
+    margin-right: 0px;
+}
+.col-sm-12 {
+    padding-left: 0px;
+    padding-right: 0px;
+}
+/*---*/
+
+/*中间上面导航样式*/
+.breadcrumb li a {
+    font-size: 16px;
+}
+.breadcrumb {
+    font-size: 14px;
+}
+
+/*备注输入框标记样式*/
+.note_input_tag{
+
+}
+
+/*修改备注的textarea样式*/
+.note_area{
+    resize: none;
+    width: 558px;
+    height: 200px;
+}
+.note_area_small{
+    resize: none !important;
+    width: 400px !important;
+    height: 200px !important;
+}
+
+/*提示气泡的单词分割样式*/
+.tooltip{
+    word-wrap: break-word !important;
+}
+
+/**/
+#msg_div{
+    width: 290px !important;
+}

@@ -1,0 +1,9 @@
+.dataTables_wrapper{
+    width:900px;
+}
+table{padding-top:10px;}
+thead {
+    background: #1E90FF;
+    color: white;
+    font-size: 12px;
+}

@@ -1,0 +1,1693 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sql>
+
+  <!--<select id="getDepartmentList">-->
+  <!--select distinct DeptName,DeptCode-->
+  <!--from-->
+  <!--(-->
+  <!--select distinct DeptName,DeptCode,DeptOrder-->
+  <!--from Cos_Inx_Dept-->
+  <!--order by to_number(DeptOrder)-->
+  <!--)-->
+
+  <!--</select>-->
+  <select id="getAllDepartment">
+
+    select DeptName,DeptCode,DeptPersons
+    from Cos_Inx_Dept
+    where to_number(Years) = to_number((:1)) and to_number(Months) = to_number((:2))
+    order by to_number(DeptOrder)
+
+  </select>
+
+  <select id="getAllDepartmentForQuarter">
+    select DeptName,DeptCode,DeptPersons ,DeptOrder
+    from Cos_Inx_Dept
+    where to_number(Years) = to_number((:1)) and to_number(Months) = to_number((:2)+2)
+    order by to_number(DeptOrder)
+
+  </select>
+
+  <!--
+  IndexSmallName:类别
+  IndexName:考核项
+  IndexUnitName:单位
+  IndexValue:价值
+  WeightNumber:权重
+  Quota:任务量
+  Plan:计划量
+  Act:完成量
+  EvaCoefficient:评价
+  standardRate:达标率  达标率=完成数/目标数
+  performancePoint:绩效点   绩点数=价值数*权重*完成数
+  perCapita:人均量
+  perPerformancePoint:人均绩点
+  -->
+  <select id="departmentReportForMonth">
+    select
+    cii.IndexOrder,
+    cii.IndexSmallName,
+    cii.IndexName,
+    cii.IndexUnitName,
+    cii.IndexValue,
+    to_char(NVL(ciibfc.WeightNumber,0)) as WeightNumber,
+    to_char(NVL(ciibfc.Quota,0)) as Quota,
+    to_char(NVL(ciibfc.Plan,0)) as Plan,
+    to_char(NVL(ciibfc.Act,0)) as Act,
+    to_char(ciibfc.EvaCoefficient) as EvaCoefficient,
+    cii.INDEXTYPE,
+    case when cii.INDEXTYPE = '01' then '加分项' else '减分项' end as INDEXTYPENAME,
+    case when NVL(ciibfc.Plan,0) = 0 then 0.00 else NVL(ciibfc.Act,0)/ciibfc.Plan * 100  end as standardRate,
+
+    NVL(cii.IndexValue,0)*NVL(ciibfc.WeightNumber,0)*NVL(ciibfc.Act,0) as performancePoint,
+    case when NVL(cid.DeptPersons,0) = 0 then 0.00 else NVL(ciibfc.Act,0)/cid.DeptPersons end as perCapita,
+    case when cid.DeptPersons = 0 then 0 else (cii.IndexValue*ciibfc.WeightNumber*ciibfc.Act)/cid.DeptPersons end as perPerformancePoint,
+    cid.DeptPersons
+
+    from Cos_Inx_IndexBaseForCheck ciibfc
+    left join Cos_Inx_IndexBase cii on ciibfc.IndexCode = cii.IndexCode  AND ciibfc.Years = cii.years AND ciibfc.months = cii.months
+    left join Cos_Inx_Dept cid on ciibfc.DeptCode = cid.DeptCode AND ciibfc.Years = cid.years AND ciibfc.months = cid.months
+    where cid.DeptCode = (:1) and to_number(ciibfc.Years) = to_number((:2)) and to_number(ciibfc.Months) = to_number((:3))
+    order by to_number(cii.IndexOrder)
+  </select>
+
+  <!--获得所有的区域名称-->
+  <select id="getAllAreaReport">
+
+    select distinct IndexAreaName,IndexArea
+    from Cos_Inx_Dept
+    where to_number(Years) = to_number((:1)) and to_number(Months) = to_number((:2))
+    order by IndexArea
+
+  </select>
+
+  <select id="departmentReportForQuarter">
+    select
+    to_number(allIndex.IndexOrder) as IndexOrder,
+    allIndex.INDEXTYPE,
+    case when allIndex.INDEXTYPE = '01' then '加分项' else '减分项' end as INDEXTYPENAME,
+    allIndex.IndexSmallName,
+    allIndex.IndexName,
+    allIndex.IndexUnitName,
+    allIndex.IndexValue,
+
+    to_char(NVL((f.Quota + s.Quota + t.Quota),0)) as quarter_Quota,
+    to_char(NVL((f.Act + s.Act + t.Act),0)) as quarter_Act,
+    to_char(NVL((f.standardRate + s.standardRate + t.standardRate),0.00)) * 100 as quarter_standardRate,
+    to_char(NVL((f.performancePoint + s.performancePoint + t.performancePoint),0.00)) as quarter_performancePoint,
+    to_char(NVL((f.perCapita + s.perCapita + t.perCapita),0.00)) as quarter_perCapita,
+
+
+    to_char(NVL(f.Quota,0)) as f_Quota,
+    to_char(NVL(f.Act,0)) as f_Act,
+    to_char(NVL(f.standardRate,0)) * 100 as f_standardRate,
+    f.performancePoint as f_performancePoint,
+    f.perCapita as f_perCapita,
+
+    to_char(NVL(s.Quota,0)) as s_Quota,
+    to_char(NVL(s.Act,0)) as s_Act,
+    to_char(NVL(s.standardRate,0)) * 100 as s_standardRate,
+    s.performancePoint as s_performancePoint,
+    s.perCapita as s_perCapita,
+
+    to_char(NVL(t.Quota,0)) as t_Quota,
+    to_char(NVL(t.Act,0)) as t_Act,
+    to_char(NVL(t.standardRate,0)) * 100 as t_standardRate,
+    t.performancePoint as t_performancePoint,
+    t.perCapita as t_perCapita
+
+    from
+    (
+    select distinct
+    cii.INDEXTYPE,
+    cii.IndexSmallName,
+    cii.IndexName,
+    cii.IndexUnitName,
+    cii.IndexValue,
+    cid.DeptCode,
+    ciibfc.IndexCode,
+    cii.IndexOrder,
+    cid.DeptPersons
+    from Cos_Inx_IndexBaseForCheck ciibfc
+    left join Cos_Inx_IndexBase cii on ciibfc.IndexCode = cii.IndexCode and ciibfc.Years=cii.Years and ciibfc.Months=cii.Months
+    left join Cos_Inx_Dept cid on ciibfc.DeptCode = cid.DeptCode and ciibfc.Years=cid.Years and ciibfc.Months=cid.Months
+    where  ciibfc.Years=cii.Years and ciibfc.Months=cii.Months
+    and cid.DeptCode = (:1)
+    and to_number(ciibfc.Years) = to_number((:2))
+    and to_number(ciibfc.Months) BETWEEN to_number((:3)) AND to_number((:3)+2)
+    ) allIndex
+    left join
+    (
+    select
+    cid.DeptCode,
+    ciibfc.IndexCode,
+    ciibfc.Quota,
+    ciibfc.Act,
+    case when ciibfc.Plan = 0 then 0 else ciibfc.Act/ciibfc.Plan end as standardRate,
+    cii.IndexValue*ciibfc.WeightNumber*ciibfc.Act as performancePoint,
+    case when cid.DeptPersons = 0 then 0 else ciibfc.Act/cid.DeptPersons end as perCapita
+    from Cos_Inx_IndexBaseForCheck ciibfc
+    left join Cos_Inx_IndexBase cii on ciibfc.IndexCode = cii.IndexCode and ciibfc.Years=cii.Years and ciibfc.Months=cii.Months
+    left join Cos_Inx_Dept cid on ciibfc.DeptCode = cid.DeptCode and ciibfc.Years=cid.Years and ciibfc.Months=cid.Months
+    where  ciibfc.Years=cii.Years and ciibfc.Months=cii.Months
+    and cid.DeptCode = (:1)
+    and to_number(ciibfc.Years) = to_number((:2))
+    and to_number(ciibfc.Months) = to_number((:3))
+    ) f
+    on allIndex.IndexCode=f.IndexCode
+    left join
+    (
+    select
+    cid.DeptCode,
+    ciibfc.IndexCode,
+    ciibfc.Quota,
+    ciibfc.Act,
+    case when ciibfc.Plan = 0 then 0 else ciibfc.Act/ciibfc.Plan end as standardRate,
+    cii.IndexValue*ciibfc.WeightNumber*ciibfc.Act as performancePoint,
+    case when cid.DeptPersons = 0 then 0 else ciibfc.Act/cid.DeptPersons end as perCapita
+    from Cos_Inx_IndexBaseForCheck ciibfc
+    left join Cos_Inx_IndexBase cii on ciibfc.IndexCode = cii.IndexCode and ciibfc.Years=cii.Years and ciibfc.Months=cii.Months
+    left join Cos_Inx_Dept cid on ciibfc.DeptCode = cid.DeptCode and ciibfc.Years=cid.Years and ciibfc.Months=cid.Months
+    where  ciibfc.Years=cii.Years and ciibfc.Months=cii.Months
+    and cid.DeptCode = (:1)
+    and to_number(ciibfc.Years) = to_number((:2))
+    and to_number(ciibfc.Months) = to_number((:3)+1)
+    ) s
+    on allIndex.IndexCode=s.IndexCode
+
+    left join
+    (
+    select
+    cid.DeptCode,
+    ciibfc.IndexCode,
+    ciibfc.Quota,
+    ciibfc.Act,
+    case when ciibfc.Plan = 0 then 0 else ciibfc.Act/ciibfc.Plan end as standardRate,
+    cii.IndexValue*ciibfc.WeightNumber*ciibfc.Act as performancePoint,
+    case when cid.DeptPersons = 0 then 0 else ciibfc.Act/cid.DeptPersons end as perCapita
+    from Cos_Inx_IndexBaseForCheck ciibfc
+    left join Cos_Inx_IndexBase cii on ciibfc.IndexCode = cii.IndexCode and ciibfc.Years=cii.Years and ciibfc.Months=cii.Months
+    left join Cos_Inx_Dept cid on ciibfc.DeptCode = cid.DeptCode and ciibfc.Years=cid.Years and ciibfc.Months=cid.Months
+    where  ciibfc.Years=cii.Years and ciibfc.Months=cii.Months
+    and cid.DeptCode = (:1)
+    and to_number(ciibfc.Years) = to_number((:2))
+    and to_number(ciibfc.Months) =to_number((:3)+2)
+    ) t
+    on allIndex.IndexCode=t.IndexCode
+
+    order by to_number(allIndex.IndexOrder)
+
+
+  </select>
+
+  <!--
+   IndexSmallName:类别
+   IndexName:考核项
+   IndexUnitName:单位
+   IndexValue:价值
+   WeightNumber:权重
+   Quota:任务量
+   Plan:计划量
+   Act:完成量
+   EvaCoefficient:评价
+   standardRate:达标率  达标率=完成数/目标数
+   performancePoint:绩效点   绩点数=价值数*权重*完成数
+   perCapita:人均量
+   perPerformancePoint:人均绩点
+   -->
+  <select id="areaReportForMonth">
+    select
+    cid.IndexArea,
+    cii.IndexOrder,
+    cii.INDEXTYPE,
+    case when cii.INDEXTYPE = '01' then '加分项' else '减分项' end as INDEXTYPENAME,
+    cii.IndexSmallName,
+    cii.IndexName,
+    cii.IndexUnitName,
+    cii.IndexValue,
+
+
+    to_char(NVL(sum(to_char(NVL(ciibfc.WeightNumber,0))),0)) as WeightNumber,
+    to_char(NVL(sum(to_char(NVL(ciibfc.Quota,0))),0)) as Quota,
+    to_char(NVL(sum(to_char(NVL(ciibfc.Plan,0))),0)) as Plan,
+    to_char(NVL(sum(to_char(NVL(ciibfc.Act,0))),0)) as Act,
+    sum(ciibfc.EvaCoefficient) as EvaCoefficient,
+    sum(case when NVL(ciibfc.Plan,0) = 0 then 0.00 else NVL(ciibfc.Act,0)/ciibfc.Plan end ) * 100 as standardRate,
+    sum(cii.IndexValue*ciibfc.WeightNumber*ciibfc.Act) as performancePoint,
+    sum(case when cid.DeptPersons = 0 then 0 else ciibfc.Act/cid.DeptPersons end ) as perCapita,
+    sum(case when cid.DeptPersons = 0 then 0 else (cii.IndexValue*ciibfc.WeightNumber*ciibfc.Act)/cid.DeptPersons end) as  perPerformancePoint,
+    sum(NVL(cid.DeptPersons,0)) as DeptPersons
+    from
+    Cos_Inx_IndexBaseForCheck ciibfc
+    left join Cos_Inx_IndexBase cii on ciibfc.IndexCode = cii.IndexCode and ciibfc.Years = cii.Years and ciibfc.Months = cii.Months
+    left join Cos_Inx_Dept cid on ciibfc.DeptCode = cid.DeptCode and ciibfc.Years = cid.Years and ciibfc.Months = cid.Months
+    where cid.IndexArea =(:1) and  to_number(ciibfc.Years) = to_number((:2)) and to_number(ciibfc.Months) =to_number((:3))
+
+    group by cid.IndexArea,cii.IndexOrder,cii.IndexSmallName,cii.IndexName,cii.IndexUnitName,cii.IndexValue,cii.INDEXTYPE
+    order by to_number(cii.IndexOrder)
+  </select>
+
+  <select id="areaReportForQuarter">
+    select
+    allIndex.IndexOrder as IndexOrder,
+    allIndex.INDEXTYPE,
+    case when allIndex.INDEXTYPE = '01' then '加分项' else '减分项' end as INDEXTYPENAME,
+    allIndex.IndexSmallName,
+    allIndex.IndexName,
+    allIndex.IndexUnitName,
+    allIndex.IndexValue,
+
+    to_char((NVL(f.Quota,0) + NVL(s.Quota,0) + NVL(t.Quota,0))) as quarter_Quota,
+    to_char((NVL(f.Act,0) + NVL(s.Act,0) + NVL(t.Act,0))) as quarter_Act,
+    to_char((NVL(f.standardRate,0) + NVL(s.standardRate,0) + NVL(t.standardRate,0))) * 100 as quarter_standardRate,
+    to_char((NVL(f.performancePoint,0) + NVL(s.performancePoint,0) + NVL(t.performancePoint,0))) as quarter_performancePoint,
+    to_char((NVL(f.perCapita,0) + NVL(s.perCapita,0) + NVL(t.perCapita,0))) as quarter_perCapita,
+
+
+    to_char(NVL(f.Quota,0)) as f_Quota,
+    to_char(NVL(f.Act,0)) as f_Act,
+    to_char(NVL(f.standardRate,0)) * 100 as f_standardRate,
+    to_char(NVL(f.performancePoint,0)) as f_performancePoint,
+    to_char(NVL(f.perCapita,0)) as f_perCapita,
+
+    to_char(NVL(s.Quota,0)) as s_Quota,
+    to_char(NVL(s.Act,0)) as s_Act,
+    to_char(NVL(s.standardRate,0)) * 100 as s_standardRate,
+    to_char(NVL(s.performancePoint,0)) as s_performancePoint,
+    to_char(NVL(s.perCapita,0)) as s_perCapita,
+
+    to_char(NVL(t.Quota,0)) as t_Quota,
+    to_char(NVL(t.Act,0)) as t_Act,
+    to_char(NVL(t.standardRate,0)) * 100 as t_standardRate,
+    to_char(NVL(t.performancePoint,0)) as t_performancePoint,
+    to_char(NVL(t.perCapita,0)) as t_perCapita
+
+    from
+    (
+    select distinct
+    cii.INDEXTYPE,
+    cii.IndexSmallName,
+    cii.IndexName,
+    cii.IndexUnitName,
+    cii.IndexValue,
+
+    ciibfc.IndexCode,
+    cii.IndexOrder
+    from Cos_Inx_IndexBaseForCheck ciibfc
+    left join Cos_Inx_IndexBase cii on ciibfc.IndexCode = cii.IndexCode and ciibfc.Years = cii.Years and ciibfc.Months = cii.Months
+    left join Cos_Inx_Dept cid on ciibfc.DeptCode = cid.DeptCode and ciibfc.Years = cid.Years and ciibfc.Months = cid.Months
+    where  ciibfc.Years=cii.Years and ciibfc.Months=cii.Months
+    and cid.IndexArea =(:1)
+    and to_number(ciibfc.Years) = to_number((:2))
+    and to_number(ciibfc.Months) BETWEEN to_number((:3)) AND to_number((:3)+2)
+    ) allIndex
+    left join
+    (
+    select
+    cid.IndexArea,
+    cii.IndexOrder,
+    cii.IndexSmallName,
+    ciibfc.IndexCode,
+    cii.IndexName,
+    cii.IndexUnitName,
+    cii.IndexValue,
+    sum(ciibfc.WeightNumber) as WeightNumber,
+    sum(ciibfc.Quota) as Quota,
+    sum(ciibfc.Plan) as Plan,
+    sum(ciibfc.Act) as Act,
+    sum(ciibfc.EvaCoefficient) as EvaCoefficient,
+    sum(case when ciibfc.Plan = 0 then 0 else ciibfc.Act/ciibfc.Plan end ) as standardRate,
+    sum(cii.IndexValue*ciibfc.WeightNumber*ciibfc.Act) as performancePoint,
+    sum(case when cid.DeptPersons = 0 then 0 else ciibfc.Act/cid.DeptPersons end ) as perCapita,
+    sum(case when cid.DeptPersons = 0 then 0 else (cii.IndexValue*ciibfc.WeightNumber*ciibfc.Act)/cid.DeptPersons end) as  perPerformancePoint
+    from Cos_Inx_IndexBaseForCheck ciibfc
+    left join Cos_Inx_IndexBase cii on ciibfc.IndexCode = cii.IndexCode and ciibfc.Years = cii.Years and ciibfc.Months = cii.Months
+    left join Cos_Inx_Dept cid on ciibfc.DeptCode = cid.DeptCode and ciibfc.Years = cid.Years and ciibfc.Months = cid.Months
+    where  ciibfc.Years=cii.Years and ciibfc.Months=cii.Months
+    and cid.IndexArea =(:1)
+    and to_number(ciibfc.Years) = to_number((:2))
+    and to_number(ciibfc.Months) =to_number((:3))
+    group by cid.IndexArea,cii.IndexOrder,cii.IndexSmallName,cii.IndexName,cii.IndexUnitName,cii.IndexValue,cii.INDEXTYPE,    ciibfc.IndexCode
+    ) f
+    on allIndex.IndexCode=f.IndexCode
+    left join
+    (
+    select
+    cid.IndexArea,
+    cii.IndexOrder,
+    cii.IndexSmallName,
+    ciibfc.IndexCode,
+    cii.IndexName,
+    cii.IndexUnitName,
+    cii.IndexValue,
+    sum(ciibfc.WeightNumber) as WeightNumber,
+    sum(ciibfc.Quota) as Quota,
+    sum(ciibfc.Plan) as Plan,
+    sum(ciibfc.Act) as Act,
+    sum(ciibfc.EvaCoefficient) as EvaCoefficient,
+    sum(case when ciibfc.Plan = 0 then 0 else ciibfc.Act/ciibfc.Plan end ) as standardRate,
+    sum(cii.IndexValue*ciibfc.WeightNumber*ciibfc.Act) as performancePoint,
+    sum(case when cid.DeptPersons = 0 then 0 else ciibfc.Act/cid.DeptPersons end ) as perCapita,
+    sum(case when cid.DeptPersons = 0 then 0 else (cii.IndexValue*ciibfc.WeightNumber*ciibfc.Act)/cid.DeptPersons end) as  perPerformancePoint
+    from Cos_Inx_IndexBaseForCheck ciibfc
+    left join Cos_Inx_IndexBase cii on ciibfc.IndexCode = cii.IndexCode and ciibfc.Years = cii.Years and ciibfc.Months = cii.Months
+    left join Cos_Inx_Dept cid on ciibfc.DeptCode = cid.DeptCode and ciibfc.Years = cid.Years and ciibfc.Months = cid.Months
+    where  ciibfc.Years=cii.Years and ciibfc.Months=cii.Months
+    and cid.IndexArea =(:1)
+    and to_number(ciibfc.Years) = to_number((:2))
+    and to_number(ciibfc.Months) = to_number((:3)+1)
+    group by cid.IndexArea,cii.IndexOrder,cii.IndexSmallName,cii.IndexName,cii.IndexUnitName,cii.IndexValue,cii.INDEXTYPE,    ciibfc.IndexCode
+    ) s
+    on allIndex.IndexCode=s.IndexCode
+
+    left join
+    (
+    select
+    cid.IndexArea,
+    cii.IndexOrder,
+    cii.IndexSmallName,
+    ciibfc.IndexCode,
+    cii.IndexName,
+    cii.IndexUnitName,
+    cii.IndexValue,
+    sum(ciibfc.WeightNumber) as WeightNumber,
+    sum(ciibfc.Quota) as Quota,
+    sum(ciibfc.Plan) as Plan,
+    sum(ciibfc.Act) as Act,
+    sum(ciibfc.EvaCoefficient) as EvaCoefficient,
+    sum(case when ciibfc.Plan = 0 then 0 else ciibfc.Act/ciibfc.Plan end ) as standardRate,
+    sum(cii.IndexValue*ciibfc.WeightNumber*ciibfc.Act) as performancePoint,
+    sum(case when cid.DeptPersons = 0 then 0 else ciibfc.Act/cid.DeptPersons end ) as perCapita,
+    sum(case when cid.DeptPersons = 0 then 0 else (cii.IndexValue*ciibfc.WeightNumber*ciibfc.Act)/cid.DeptPersons end) as  perPerformancePoint
+    from Cos_Inx_IndexBaseForCheck ciibfc
+    left join Cos_Inx_IndexBase cii on ciibfc.IndexCode = cii.IndexCode and ciibfc.Years = cii.Years and ciibfc.Months = cii.Months
+    left join Cos_Inx_Dept cid on ciibfc.DeptCode = cid.DeptCode and ciibfc.Years = cid.Years and ciibfc.Months = cid.Months
+    where  ciibfc.Years=cii.Years and ciibfc.Months=cii.Months
+    and cid.IndexArea =(:1)
+    and to_number(ciibfc.Years) = to_number((:2))
+    and to_number(ciibfc.Months) = to_number((:3)+2)
+    group by cid.IndexArea,cii.IndexOrder,cii.IndexSmallName,cii.IndexName,cii.IndexUnitName,cii.IndexValue,cii.INDEXTYPE,    ciibfc.IndexCode
+    ) t
+    on allIndex.IndexCode=t.IndexCode
+
+    order by to_number(allIndex.IndexOrder)
+
+
+  </select>
+
+
+  <select id="getCurrYearMonth">
+    select Years,Months from Cos_Inx_Month where IFCurrMonth = 'Y'
+  </select>
+
+  <select id="getAllAreaChildReport">
+    select distinct pt.deptname,pt.deptcode,pt.deptpersons
+    from cos_inx_dept pt
+    where 1 = 1
+    and pt.indexarea = (:1)
+  </select>
+
+  <select id="getOfficeIndex">
+    SELECT *
+    FROM COS_INX_PERSUM
+    WHERE YEARS = (:1)
+    AND MONTH = (:2)
+    ORDER BY ROW_NO ASC
+  </select>
+
+  <select id="getOfficeCheckStatus">
+    SELECT *
+    FROM COS_INX_OFFICECHECKSTATUS
+    WHERE YEARS = (:1)
+    AND MONTHS = (:2)
+  </select>
+
+  <!-- **********  以下为绩效项目所用sql  ********** -->
+
+<!--/************* 共享代码 **********************************************************************/-->
+  <select id="a320dsf3a790">
+    //查询当前使用时间sql
+    select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10'
+    select QUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10'
+
+    //查询当前使用的操作状态表sql
+    select ID from COS_INX_TIMESTATUS where CURRENTSTATUS = '10'
+
+    //时间判断条件sql
+    YEARS = (select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')
+    and MONTH = (select CQUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')
+  </select>
+  <!--获得当前可操作的时间-->
+  <select id="getNowTime">
+    select * from COS_INX_TIMESTATUS where CURRENTSTATUS = '10'
+  </select>
+  <!--根据row_sort获得该操作开始结束时间-->
+  <select id="getOperationTimeByRow_sort">
+    select CRE_TIME,END_TIME
+    from COS_INX_CONTROLTIME
+    where ROW_SORT = (:1)
+    and YEARS = (select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')
+    and QUARTER = (select QUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')
+  </select>
+  <!--倒计时-->
+  <select id="getCountDownTime">
+    SELECT id,DESCRIPTION,cre_time,end_time
+    FROM COS_INX_CONTROLTIME
+    where ROW_SORT = (:1)
+    and QUARTER = (select QUARTER from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    and YEARS = (select YEARS from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+  </select>
+
+  <!-- 发送消息／通知 -->
+  <select id="gs_rs">
+    <!--INSERT INTO COS_INX_REMIND(ID,YEARS,QUARTER,CONTENT,STATUS,PERID,SUB_TIME)-->
+    <!--VALUES-->
+    <!--(-->
+    <!--SEQ_COS_INX_REMIND.NEXTVAL,-->
+    <!--(select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10'),-->
+    <!--(select QUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10'),-->
+    <!--(:1),-->
+    <!--'N',-->
+    <!--(select ID from COS_INX_EMPLOYEEINFO where code=(:2)),-->
+    <!--SYSDATE-->
+    <!--)-->
+    INSERT INTO COS_INX_REMIND(ID,YEARS,QUARTER,CONTENT,STATUS,PERID,SUB_TIME)
+    VALUES
+    (
+    SEQ_COS_INX_REMIND.NEXTVAL,
+    (select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10'),
+    (select QUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10'),
+    (:1),
+    'N',
+    (:2),
+    SYSDATE
+    )
+  </select>
+
+  <!--更新员工信息表，完善其他字段-->
+  <select id="updateAllEmpInfo">
+    update COS_INX_EMPLOYEEINFO
+    set cdept=(:1),cgroup=(:2),clei=(:3),
+    rank=(:4),cjbmoney=(:5),cgwmoney=(:6),
+    cxcmoney=(:7),cotherfoodmoney=(:8),czwmoney=(:9),
+    cdqmoney=(:10),cothersubsidy=(:11),cjbmoneysum=(:12),
+    crankStandard=(:13),cranksum=(:14),cmoneyadd=(:15),
+    cmonthmoneyadd=(:16),entry_time=to_date((:17),'YYYY-MM-DD'),positive_time=to_date((:18),'YYYY-MM-DD'),
+    remarks=(:19),departure_time=to_date((:20),'YYYY-MM-DD')
+    where name in (select name from COS_INX_EMPLOYEEINFO where name = (:21) group by name having count(*) = 1)
+
+  </select>
+
+<!--/************* hty **********************************************************************/-->
+  <!--小饼图-->
+  <select id="getCompanyBonusRatioAll">
+    select NAME,AWARD/10000 AWARD,
+    AWARD*100/(select sum(AWARD)
+    from COS_INX_COMPANYBONUS
+    where YEARS = (:1)
+    and QUARTER = (:2)) SUM
+    from COS_INX_COMPANYBONUS
+    where YEARS = (:1)
+    and QUARTER = (:2)
+    order by ID
+  </select>
+  <!--大饼图-->
+  <select id="getCompanyBonusRatio">
+    select NAME,AWARD from COS_INX_COMPANYBONUS
+    where YEARS = (:1)
+    and QUARTER = (:2)
+  </select>
+  <!--获得区域审批状态-->
+  <select id="getAreaStatus">
+    select TUBE_NUMBER_STATUS,COMMERCE_NUMBER_STATUS
+    from COS_INX_AREAOPERATESTATUS
+    where INDEXAREA_ID = (:1)
+    and YEARS = (select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')
+    and QUARTER = (select QUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')
+  </select>
+  <!--修改区域审批状态-->
+  <select id="subTubeAndBusinessPersonNum">
+    update COS_INX_AREAOPERATESTATUS
+    set TUBE_NUMBER_STATUS = '30',
+    COMMERCE_NUMBER_STATUS = '30'
+    where INDEXAREA_ID = (:1)
+  </select>
+  <!--保存箱管商务审批人数-->
+  <select id="keepTubeAndBusinessPersonNum">
+    update COS_INX_OFFICEBONUS
+    set EX_TUBE_NUMBER = (:1),
+    EX_COMMERCE_NUMBER = (:2)
+    where ID = (:3)
+  </select>
+  <!--查询所管的所有办事处的箱管商务人数-->
+  <select id="getTubeAndBusinessPersonNum">
+    select b.ID,b.COMPANY_NAME,b.INDEXAREA_NAME,b.OFFICE_NAME,b.COMMERCE_NUMBER,b.EX_COMMERCE_NUMBER,b.TUBE_NUMBER,b.EX_TUBE_NUMBER
+    from (select ID
+    from COS_INX_ORGANIZATION
+    where RESPONSIBLEPER = (:1)) a
+    left join (select ID,OFFICE_ID,COMPANY_NAME,INDEXAREA_NAME,OFFICE_NAME,
+    COMMERCE_NUMBER,EX_COMMERCE_NUMBER,TUBE_NUMBER,EX_TUBE_NUMBER
+    from COS_INX_OFFICEBONUS
+    where YEARS = (select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')
+    and QUARTER = (select QUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')) b
+    on a.ID = b.OFFICE_ID
+    order by ID
+  </select>
+  <!--提交关系维护-->
+  <select id="setOfficeRelation">
+    update COS_INX_ORGANIZATION
+    set RESPONSIBLEPER = (:1)
+    where ID = (:2)
+  </select>
+  <!--根据区域、主管id读取办事处-->
+  <select id="getResponByAreaId">
+    select ID,NAME,RESPONSIBLEPER
+    from COS_INX_ORGANIZATION
+    where TYPE = '30'
+    and PARENTORGID = (:1)
+    and (RESPONSIBLEPER = (:2)
+    or RESPONSIBLEPER is null)
+  </select>
+  <!--根据公司id读取区域-->
+  <select id="getAreaByCompanyId">
+    select ID,NAME
+    from COS_INX_ORGANIZATION
+    where TYPE = '20'
+    and PARENTORGID = (:1)
+    order by ID
+  </select>
+  <!--读取所有公司-->
+  <select id="getAllCompany">
+    select ID,NAME
+    from COS_INX_ORGANIZATION
+    where TYPE = '10'
+    order by ID
+  </select>
+  <!--区域状态修改箱管为已申报-->
+  <select id="setAreaTubeStatusDeclare">
+    update COS_INX_AREAOPERATESTATUS
+    set TUBE_NUMBER_STATUS = '20'
+    where YEARS = (select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')
+    and QUARTER = (select QUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')
+  </select>
+  <!--区域状态修改商务为已申报-->
+  <select id="setAreaCommerceStatusDeclare">
+    update COS_INX_AREAOPERATESTATUS
+    set COMMERCE_NUMBER_STATUS = '20'
+    where YEARS = (select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')
+    and QUARTER = (select QUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')
+  </select>
+  <!--查询公司将近数据-->
+  <select id="checkCompanyBonus">
+    select a.ID,a.NAME,a.AWARD,b.AWARD "TB",c.AWARD "HB"
+    from (select ID,NAME,AWARD,ORGID from COS_INX_COMPANYBONUS
+    where YEARS = (:1)
+    and QUARTER = (:2)) a
+    left join (select AWARD,ORGID from COS_INX_COMPANYBONUS
+    where YEARS = ((:1)-1)
+    and QUARTER = (:2)) b
+    on a.ORGID = b.ORGID
+    left join (select AWARD,ORGID from COS_INX_COMPANYBONUS
+    where YEARS = (:1)
+    and QUARTER = (:2)-1) c
+    on a.ORGID = c.ORGID
+  </select>
+  <!--读取公司奖金数据-->
+  <select id="getCompanyBonus">
+    select a.ID,a.NAME,a.AWARD,b.AWARD "TB",c.AWARD "HB"
+    from (select ID,NAME,AWARD,ORGID from COS_INX_COMPANYBONUS
+    where YEARS = (select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')
+    and QUARTER = (select QUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')) a
+    left join (select AWARD,ORGID from COS_INX_COMPANYBONUS
+    where YEARS = ((select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')-1)
+    and QUARTER = (select QUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')) b
+    on a.ORGID = b.ORGID
+    left join (select AWARD,ORGID from COS_INX_COMPANYBONUS
+    where YEARS = (select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')
+    and QUARTER = (select QUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')-1) c
+    on a.ORGID = c.ORGID
+  </select>
+  <!--保存公司奖金数据-->
+  <select id="keepCompanyBonus">
+    update COS_INX_COMPANYBONUS
+    set AWARD = (:1)
+    where ID = (:2)
+    and YEARS = (select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')
+    and QUARTER = (select QUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')
+  </select>
+  <!--修改总奖金分配状态-->
+  <select id="updateCompanyBonusStatus">
+    update COS_INX_TIMESTATUS
+    set COMPANY_BONUS_STATUS = '1'
+    where CURRENTSTATUS = '10'
+  </select>
+  <!--得到总奖金分配状态-->
+  <select id="getCompanyBonusStatus">
+    select COMPANY_BONUS_STATUS
+    from COS_INX_TIMESTATUS
+    where CURRENTSTATUS = '10'
+  </select>
+  <!--得到箱管申报状态-->
+  <select id="getTubeDeclareStatus">
+    select TUBE_PERSON_SUBSTATUS
+    from COS_INX_TIMESTATUS
+    where CURRENTSTATUS = '10'
+  </select>
+  <!--读取箱管人数-->
+  <select id="getTubePersonNumber">
+    select ID,OFFICE_NAME,TUBE_NUMBER from COS_INX_OFFICEBONUS
+    where YEARS = (select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')
+    and QUARTER = (select QUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')
+    order by ID
+  </select>
+  <!--保存箱管人数-->
+  <select id="keepTubePersonNumber">
+    update COS_INX_OFFICEBONUS
+    set TUBE_NUMBER = (:1)
+    where ID = (:2)
+  </select>
+  <!--提交箱管人数-->
+  <select id="subTubePersonNumber">
+    update COS_INX_OFFICEBONUS
+    set TUBE_NUMBER = (:1),
+    EX_TUBE_NUMBER = (:2)
+    where ID = (:3)
+  </select>
+  <!--修改箱管申报状态-->
+  <select id="subTubeDeclareStatus">
+    update COS_INX_TIMESTATUS
+    set TUBE_PERSON_SUBSTATUS = '1'
+    where CURRENTSTATUS = '10'
+  </select>
+  <!--得到商务申报状态-->
+  <select id="getBusinessDeclareStatus">
+    select COMMERCE_PERSON_SUBSTATUS
+    from COS_INX_TIMESTATUS
+    where CURRENTSTATUS = '10'
+  </select>
+  <!--读取商务人数-->
+  <select id="getBusinessPersonNumber">
+    select ID,OFFICE_NAME,COMMERCE_NUMBER from COS_INX_OFFICEBONUS
+    where YEARS = (select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')
+    and QUARTER = (select QUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')
+    order by ID
+  </select>
+  <!--保存商务人数-->
+  <select id="keepBusinessPersonNumber">
+    update COS_INX_OFFICEBONUS
+    set COMMERCE_NUMBER = (:1)
+    where ID = (:2)
+  </select>
+  <!--提交商务人数-->
+  <select id="subBusinessPersonNumber">
+    update COS_INX_OFFICEBONUS
+    set COMMERCE_NUMBER = (:1),
+    EX_COMMERCE_NUMBER = (:2)
+    where ID = (:3)
+  </select>
+  <!--修改商务申报状态-->
+  <select id="subBusinessDeclareStatus">
+    update COS_INX_TIMESTATUS
+    set COMMERCE_PERSON_SUBSTATUS = '1'
+    where CURRENTSTATUS = '10'
+  </select>
+  <!--箱管商务人数查询-->
+  <select id="checkTubeBusinessPersonNumber">
+    select COMPANY_NAME,INDEXAREA_NAME,OFFICE_NAME,EX_COMMERCE_NUMBER,EX_TUBE_NUMBER
+    from COS_INX_OFFICEBONUS
+    where YEARS = (:1)
+    and QUARTER = (:2)
+    order by ID
+  </select>
+
+<!--/************** hd **********************************************************************/-->
+  <!--/************* 系统开始，的初始化sql **************/-->
+  <!-- 插入时间控制表 -->
+  <select id="insertTimeTable">
+    insert into COS_INX_CONTROLTIME
+    (ID,YEARS,QUARTER,DESCRIPTION,TIME_CONTROL_TREM_ID,CRE_TIME,END_TIME,REMARKS,ROW_SORT)
+    values(
+    SEQ_COS_INX_CONTROLTIME.NEXTVAL,
+    (select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10'),
+    (select QUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10'),
+    (:1),
+    (:2),
+    to_date((:3),'YYYY-MM-DD HH24:MI'),
+    to_date((:4),'YYYY-MM-DD HH24:MI'),
+    (:5),
+    (:6))
+  </select>
+  <!-- 修改操作状态表 -->
+  <select id="updateOperateState">
+    update COS_INX_TIMESTATUS
+    set OPERATIONSTATUS = '10'
+    where CURRENTSTATUS = '10'
+  </select>
+  <!-- 插入公司奖金表 -->
+  <select id="insertCompanyBonus">
+    insert into COS_INX_COMPANYBONUS
+    (ID,YEARS,QUARTER,ORGID,NAME,AWARD,OPE_STATUS_ID)
+    select
+    SEQ_COS_INX_COMPANYBONUS.NEXTVAL as ID,
+    (select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10') as YEARS,
+    (select QUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10') as QUARTER,
+    ID as ORGID,
+    NAME,0,(select ID from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')
+    from COS_INX_ORGANIZATION
+    where type='10'
+  </select>
+  <!-- 插入办事处奖金分配表 -->
+  <select id="insertOfficeBonus">
+    insert into COS_INX_OFFICEBONUS
+    (ID,YEARS,QUARTER,OFFICE_ID,OFFICE_NAME,INDEXAREA_ID,INDEXAREA_NAME,
+    COMPANY_ID,COMPANY_NAME,DEPTPERSONS,JX_FEN,SUM_FEN,TOTAL,PER_CAPITA,
+    COMMERCE_NUMBER,EX_COMMERCE_NUMBER,COMMERCE_MONEY,TUBE_NUMBER,
+    EX_TUBE_NUMBER,TUBE_MONEY,PROBATION,POSITIVE,MONTHS_NUMBER,TRUE_TOTAL,
+    SUB_CHECK_STATUS,OPE_STATUS_ID,
+    MANAGER_ID,COEFFICIENT,COEFFICIENT_REMARKS,JD_SUM,JD_AVE)
+
+
+    select
+    SEQ_COS_INX_OFFICEBONUS.NEXTVAL,
+    (select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10'),
+    (select QUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10'),
+    OFFICEID,OFFICENAME,FID,FNAME,YID,YNAME,(DEPTPERSONS/3) as DEPTPERSONS,JX_FEN,0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    '10',
+    (select ID from COS_INX_TIMESTATUS where CURRENTSTATUS = '10'),
+    ID,0,'',JD_SUM,JD_AVE
+    from
+    (select t1.*,t2.DEPTPERSONS as DEPTPERSONS,t2.JX_FEN as JX_FEN,t2.JD_SUM,t2.JD_AVE,'' as "ID"
+    from (select t1.*,t2.name as yname from
+    (select t1.id as OFFICEID,t1.name as OFFICENAME,t2.id as fid,t2.name as fname,t2.PARENTORGID as yid
+    from COS_INX_ORGANIZATION t1, COS_INX_ORGANIZATION t2
+    where t1.PARENTORGID=t2.ID) t1, COS_INX_ORGANIZATION t2
+    where t1.YID = t2.ID) t1,
+    (select * from COS_INX_PERSUM where   YEARS = (select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')
+    and MONTH = (select CQUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')) t2
+    where t1.OFFICENAME = t2.DEPT) t1
+
+    <!--select-->
+    <!--SEQ_COS_INX_OFFICEBONUS.NEXTVAL,-->
+    <!--(select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10'),-->
+    <!--(select QUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10'),-->
+    <!--OFFICEID,OFFICENAME,FID,FNAME,YID,YNAME,(DEPTPERSONS/3) as DEPTPERSONS,JX_FEN,0,-->
+    <!--0,-->
+    <!--0,-->
+    <!--0,-->
+    <!--0,-->
+    <!--0,-->
+    <!--0,-->
+    <!--0,-->
+    <!--0,-->
+    <!--0,-->
+    <!--0,-->
+    <!--0,-->
+    <!--0,-->
+    <!--'10',-->
+    <!--(select ID from COS_INX_TIMESTATUS where CURRENTSTATUS = '10'),-->
+    <!--ID,0,'',JD_SUM,JD_AVE-->
+    <!--from-->
+    <!--(select t1.*, t2.ID-->
+    <!--from (select t1.*,t2.DEPTPERSONS as DEPTPERSONS,t2.JX_FEN as JX_FEN,t2.JD_SUM,t2.JD_AVE-->
+    <!--from (select t1.*,t2.name as yname from-->
+    <!--(select t1.id as OFFICEID,t1.name as OFFICENAME,t2.id as fid,t2.name as fname,t2.PARENTORGID as yid-->
+    <!--from COS_INX_ORGANIZATION t1, COS_INX_ORGANIZATION t2-->
+    <!--where t1.PARENTORGID=t2.ID) t1, COS_INX_ORGANIZATION t2-->
+    <!--where t1.YID = t2.ID) t1,-->
+    <!--(select * from COS_INX_PERSUM where   YEARS = (select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')-->
+    <!--and MONTH = (select CQUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')) t2-->
+    <!--where t1.OFFICENAME = t2.DEPT) t1,COS_INX_EMPLOYEEINFO t2-->
+    <!--where t1.OFFICEID = ORGID and POSITION = '20') t1-->
+  </select>
+  <select id="insertOfficeBonus2">
+    insert into COS_INX_OFFICEBONUS
+    (ID,YEARS,QUARTER,OFFICE_ID,OFFICE_NAME,INDEXAREA_ID,INDEXAREA_NAME,
+    COMPANY_ID,COMPANY_NAME,DEPTPERSONS,JX_FEN,SUM_FEN,TOTAL,PER_CAPITA,
+    COMMERCE_NUMBER,EX_COMMERCE_NUMBER,COMMERCE_MONEY,TUBE_NUMBER,
+    EX_TUBE_NUMBER,TUBE_MONEY,PROBATION,POSITIVE,MONTHS_NUMBER,TRUE_TOTAL,
+    SUB_CHECK_STATUS,OPE_STATUS_ID,
+    MANAGER_ID,COEFFICIENT,COEFFICIENT_REMARKS,JD_SUM,JD_AVE)
+
+
+    select
+    SEQ_COS_INX_OFFICEBONUS.NEXTVAL,
+    (select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10'),
+    (select QUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10'),
+    T1.ID,T1.NAME,T1.FID,T1.FNAME,T1.YID,T1.YNAME,0,0,0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    '10',
+    (select ID from COS_INX_TIMESTATUS where CURRENTSTATUS = '10'),
+    '',0,'',
+    0,0
+    from
+    (select t1.*,t2.name as YNAME from
+    (select t1.*,t2.ID as FID,t2.NAME as FNAME,t2.PARENTORGID as YID from COS_INX_ORGANIZATION t1,COS_INX_ORGANIZATION t2
+    where t1.PARENTORGID=t2."ID" and t1.EXE_DEPT='20'
+    ) t1,COS_INX_ORGANIZATION t2 where t1.YID=t2."ID") t1
+    <!--select-->
+    <!--SEQ_COS_INX_OFFICEBONUS.NEXTVAL,-->
+    <!--(select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10'),-->
+    <!--(select QUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10'),-->
+    <!--T1.ID,T1.NAME,T1.FID,T1.FNAME,T1.YID,T1.YNAME,0,0,0,-->
+    <!--0,-->
+    <!--0,-->
+    <!--0,-->
+    <!--0,-->
+    <!--0,-->
+    <!--0,-->
+    <!--0,-->
+    <!--0,-->
+    <!--0,-->
+    <!--0,-->
+    <!--0,-->
+    <!--0,-->
+    <!--'10',-->
+    <!--(select ID from COS_INX_TIMESTATUS where CURRENTSTATUS = '10'),-->
+    <!--T2.ID,0,'',-->
+    <!--0,0-->
+    <!--from-->
+    <!--(select t1.*,t2.name as YNAME from-->
+    <!--(select t1.*,t2.ID as FID,t2.NAME as FNAME,t2.PARENTORGID as YID from COS_INX_ORGANIZATION t1,COS_INX_ORGANIZATION t2-->
+    <!--where t1.PARENTORGID=t2."ID" and t1.EXE_DEPT='20'-->
+    <!--) t1,COS_INX_ORGANIZATION t2 where t1.YID=t2."ID") t1,COS_INX_EMPLOYEEINFO t2-->
+    <!--where t1.id=t2.ORGID AND t2.POSITION='20'-->
+  </select>
+  <!-- 插入区域操作表表表表表 -->
+  <select id="insertAreaState">
+    insert into COS_INX_AREAOPERATESTATUS
+    (ID,YEARS,QUARTER,INDEXAREA_ID,INDEXAREA_NAME,INDEXAREA_EX_STATUS,TUBE_NUMBER_STATUS,COMMERCE_NUMBER_STATUS)
+    select
+    SEQ_COS_INX_AREAOPERATESTATUS.NEXTVAL,
+    (select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10'),
+    (select QUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10'),
+    ID,NAME,'0',
+    '10',
+    '10'
+    from COS_INX_ORGANIZATION
+    where type='20'
+  </select>
+  <!-- 插入员工奖金比例表表表表表 -->
+  <select id="insertEmployeeScale">
+    insert into COS_INX_PERSONBONUS
+    (ID,YEARS,QUARTER,CODE,NAME,PROPORTION,REMARKS,SUPERIORPRO,REMARKSPRO,JS_AWARD,HS_AWARD,OFFICEBONUS_ID,EMPLOYEEINFO_ID)
+    select
+    SEQ_COS_INX_PERSONBONUS.NEXTVAL as ID,
+    (select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10') as YEARS,
+    (select QUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10') as QUARTER,
+    t1.CODE as CODE,
+    t1.NAME as NAME,
+    0 as PROPORTION,
+    '' as REMARKS,
+    0 as SUPERIORPRO,
+    '' as REMARKSPRO,
+    0 as JS_AWARD,
+    0 as HS_AWARD,
+    t2.ID as OFFICEBONUS_ID,
+    t1.ID as EMPLOYEEINFO_ID
+    from COS_INX_EMPLOYEEINFO t1,
+    (select OFFICE_ID,ID from COS_INX_OFFICEBONUS t2 where YEARS = (select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')
+    and QUARTER = (select QUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')) t2
+    where (POSITION = '10' or POSITION = '20')
+    and t1.ORGID = t2.OFFICE_ID
+  </select>
+
+  <!--/************* 用户消息 **************/-->
+  //修改用户消息状态
+  <select id="msgChangeStatus">
+    update COS_INX_REMIND set STATUS='Y'
+    where ID=(:1)
+  </select>
+  //获得用户未读消息
+  <select id="getEmpMsg">
+    select ID,CONTENT,SUB_TIME from COS_INX_REMIND
+    where PERID = (:1)
+    and STATUS='N'
+    and  YEARS=(select YEARS FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    and QUARTER=(select QUARTER FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    <!--先注了-->
+    <!--select ID,CONTENT,SUB_TIME from COS_INX_REMIND-->
+    <!--where PERID = (select id from COS_INX_EMPLOYEEINFO where code = (:1))-->
+    <!--and STATUS='N'-->
+    <!--and  YEARS=(select YEARS FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')-->
+    <!--and QUARTER=(select QUARTER FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')-->
+  </select>
+  //获得用户已读消息
+  <select id="getEmpMsgOld">
+    select ID,CONTENT,SUB_TIME from COS_INX_REMIND
+    where PERID = (:1)
+    and STATUS='Y'
+    and  YEARS=(select YEARS FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    and QUARTER=(select QUARTER FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    <!--先注了-->
+    <!--select ID,CONTENT,SUB_TIME from COS_INX_REMIND-->
+    <!--where PERID = (select id from COS_INX_EMPLOYEEINFO where code = (:1))-->
+    <!--and STATUS='Y'-->
+    <!--and  YEARS=(select YEARS FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')-->
+    <!--and QUARTER=(select QUARTER FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')-->
+  </select>
+
+  <!--/************* 时间操作 **************/-->
+  //从时间表里面获得数据
+  <select id="getTimeValues">
+    select ID,DESCRIPTION,TIME_CONTROL_TREM_ID,REMARKS,CRE_TIME,END_TIME
+    from COS_INX_CONTROLTIME
+    where YEARS=(select YEARS FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    and QUARTER=(select QUARTER FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    order by ROW_SORT asc
+  </select>
+  // 获得时间控制项，码表的数据
+  <select id="getTimeTerm">
+    select * from COS_INX_TIMECONTROLTERM order by ROW_SORT
+  </select>
+  //update time table
+  <select id="updateTimeTable">
+    update COS_INX_CONTROLTIME
+    set
+    CRE_TIME = to_date((:1),'YYYY-MM-DD HH24:MI'),
+    END_TIME = to_date((:2),'YYYY-MM-DD HH24:MI'),
+    REMARKS = (:3)
+    where ID = (:4)
+  </select>
+
+  //2015年第三季度绩效奖金额度Top10
+  <select id="JXFXTJ1">
+    SELECT T2.N, T2.COMPANY_NAME, T2.OFFICE_NAME, T2."NAME", T1.POSITION, T2.HS_AWARD
+    FROM COS_INX_EMPLOYEEINFO T1,
+    (
+    SELECT T2.N, T1.COMPANY_NAME, T1.OFFICE_NAME, T2.NAME, T2.EMPLOYEEINFO_ID, T2.HS_AWARD
+    FROM COS_INX_OFFICEBONUS T1,
+    (
+    SELECT ROWNUM AS "N", T1.OFFICEBONUS_ID, T1.NAME, T1.HS_AWARD ,T1.EMPLOYEEINFO_ID
+    FROM
+    (
+    SELECT T1.*
+    FROM COS_INX_PERSONBONUS T1
+    WHERE YEARS=(:1)
+    AND QUARTER=(:2)
+    ORDER BY HS_AWARD DESC
+    ) T1
+    WHERE ROWNUM&lt;=10
+    ) T2
+    WHERE T1.ID=T2.OFFICEBONUS_ID
+    ) T2
+    WHERE T1.ID=T2.EMPLOYEEINFO_ID
+    AND (T1.POSITION='10' OR T1.POSITION='20')
+  </select>
+  //2015年第三季度绩效奖金额度Top-10
+  <select id="JXFXTJ2">
+    SELECT T2.N, T2.COMPANY_NAME, T2.OFFICE_NAME, T2."NAME", T1.POSITION, T2.HS_AWARD
+    FROM COS_INX_EMPLOYEEINFO T1,
+    (
+    SELECT T2.N, T1.COMPANY_NAME, T1.OFFICE_NAME, T2.NAME, T2.EMPLOYEEINFO_ID, T2.HS_AWARD
+    FROM COS_INX_OFFICEBONUS T1,
+    (
+    SELECT ROWNUM AS "N", T1.OFFICEBONUS_ID, T1.NAME, T1.HS_AWARD ,T1.EMPLOYEEINFO_ID
+    FROM
+    (
+    SELECT T1.*
+    FROM COS_INX_PERSONBONUS T1
+    WHERE YEARS=(:1)
+    AND QUARTER=(:2)
+    ORDER BY HS_AWARD ASC
+    ) T1
+    WHERE ROWNUM&lt;=10
+    ) T2
+    WHERE T1.ID=T2.OFFICEBONUS_ID
+    ) T2
+    WHERE T1.ID=T2.EMPLOYEEINFO_ID
+    AND (T1.POSITION='10' OR T1.POSITION='20')
+  </select>
+  //2015年第三季度航线绩效奖金同比环比
+  <select id="JXFXTJ3">
+    SELECT ROWNUM, T1.* FROM
+    (SELECT T1.*, (T1.TRUE_TOTAL/T2.TRUE_TOTAL*100) AS "HB"
+    FROM
+    (SELECT T1.*, (T1.TRUE_TOTAL/T2.TRUE_TOTAL*100) AS "TB"
+    FROM
+    (SELECT OFFICE_ID, INDEXAREA_NAME, OFFICE_NAME, TRUE_TOTAL
+    FROM COS_INX_OFFICEBONUS
+    WHERE COMPANY_ID='10000001'
+    AND YEARS=(:1)
+    AND QUARTER=(:2)) T1 LEFT JOIN
+    (SELECT OFFICE_ID, TRUE_TOTAL
+    FROM COS_INX_OFFICEBONUS
+    WHERE COMPANY_ID='10000001'
+    AND YEARS=(:3)
+    AND QUARTER=(:4)) T2 ON T1.OFFICE_ID=T2.OFFICE_ID) T1
+    LEFT JOIN
+    (SELECT OFFICE_ID, TRUE_TOTAL
+    FROM COS_INX_OFFICEBONUS
+    WHERE COMPANY_ID='10000001'
+    AND YEARS=(:5)
+    AND QUARTER=(:6)
+    ) T2
+    ON T1.OFFICE_ID=T2.OFFICE_ID
+    ORDER BY TB,HB DESC) T1
+  </select>
+  //2015年第三季度物流绩效奖金同比环比
+  <select id="JXFXTJ4">
+    SELECT ROWNUM, T1.* FROM
+    (SELECT T1.*, (T1.TRUE_TOTAL/T2.TRUE_TOTAL*100) AS "HB"
+    FROM
+    (SELECT T1.*, (T1.TRUE_TOTAL/T2.TRUE_TOTAL*100) AS "TB"
+    FROM
+    (SELECT OFFICE_ID, INDEXAREA_NAME, OFFICE_NAME, TRUE_TOTAL
+    FROM COS_INX_OFFICEBONUS
+    WHERE COMPANY_ID='10000003'
+    AND YEARS=(:1)
+    AND QUARTER=(:2)) T1 LEFT JOIN
+    (SELECT OFFICE_ID, TRUE_TOTAL
+    FROM COS_INX_OFFICEBONUS
+    WHERE COMPANY_ID='10000003'
+    AND YEARS=(:3)
+    AND QUARTER=(:4)) T2 ON T1.OFFICE_ID=T2.OFFICE_ID) T1
+    LEFT JOIN
+    (SELECT OFFICE_ID, TRUE_TOTAL
+    FROM COS_INX_OFFICEBONUS
+    WHERE COMPANY_ID='10000003'
+    AND YEARS=(:5)
+    AND QUARTER=(:6)
+    ) T2
+    ON T1.OFFICE_ID=T2.OFFICE_ID
+    ORDER BY TB,HB DESC) T1
+  </select>
+  <!--/************* 结束当前绩效 **************/-->
+  //关闭当前绩效考核--修改操作状态表,修改当前季度的操作状态
+  <select id="closeSystem">
+    update COS_INX_TIMESTATUS
+    set CURRENTSTATUS = '20', OPERATIONSTATUS = '20'
+    where CURRENTSTATUS = '10'
+  </select>
+  //关闭当前绩效考核--修改操作状态表，初始化下个季度的操作状态
+  <select id="setNextState">
+    insert into COS_INX_TIMESTATUS
+    (ID, YEARS, QUARTER, CQUARTER, CURRENTSTATUS,
+    OPERATIONSTATUS, OFFICE_BONUS_STATUS, MANAGER_COEFFICIENT_STATUS,
+    TUBE_PERSON_SUBSTATUS, COMMERCE_PERSON_SUBSTATUS, COMPANY_BONUS_STATUS)
+    values(
+    SEQ_COS_INX_TIMESTATUS.NEXTVAL,
+    (:1),
+    (:2),
+    (:3),
+    '10',
+    '20',
+    '2',
+    '0',
+    '0',
+    '0',
+    '0'
+    )
+
+  </select>
+
+  <!--/************* 各办奖金分配 **************/-->
+  //从各办奖金分配表中读取数据
+  <select id="getOfficeBonus">
+    select
+    ROWNUM, ID, OFFICE_NAME, DEPTPERSONS, JX_FEN, SUM_FEN, TOTAL, PER_CAPITA,
+    <!--EX_COMMERCE_NUMBER, COMMERCE_MONEY, EX_TUBE_NUMBER, TUBE_MONEY,-->
+    COMMERCE_NUMBER, COMMERCE_MONEY, TUBE_NUMBER, TUBE_MONEY,
+    PROBATION, POSITIVE, MONTHS_NUMBER, TRUE_TOTAL, SUB_CHECK_STATUS, JD_SUM, JD_AVE,
+    MONTH_PER_CAPITA, EFFECTIVE_COEFFICIENT
+    from COS_INX_OFFICEBONUS
+    where YEARS=(select YEARS FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    and QUARTER=(select QUARTER FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    order by ID asc
+  </select>
+  //修改各办奖金分配表
+  <select id="setOfficeBonus">
+      update COS_INX_OFFICEBONUS set DEPTPERSONS = (:1),JD_AVE = (:2),JX_FEN = (:3),SUM_FEN = (:4),TOTAL = (:5),PER_CAPITA = (:6),
+      COMMERCE_MONEY=(:7),TUBE_MONEY = (:8),PROBATION=(:9),
+      POSITIVE=(:10),MONTHS_NUMBER=(:11),TRUE_TOTAL=(:12),MONTH_PER_CAPITA=(:13),EFFECTIVE_COEFFICIENT=(:14) where ID = (:15)
+      and YEARS=(select YEARS FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+      and QUARTER=(select QUARTER FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+  </select>
+  //提交分配结果
+  <select id="changeSubState">
+    update COS_INX_TIMESTATUS set OFFICE_BONUS_STATUS=(:1) where CURRENTSTATUS = '10'
+  </select>
+  //all bonus
+  <select id="getAllBonus">
+    select sum(award) as SUM
+    from COS_INX_COMPANYBONUS
+    where YEARS=(select YEARS FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    and QUARTER=(select QUARTER FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    and ORGID in ('10000001','10000003')
+    <!-- 航线和物流的钱 -->
+  </select>
+  <!--/************* 获取各个操作的权限 **************/-->
+  //获取各办奖金分配状态0保存1提交2初始化未做过修改
+  <select id="getOfficeBonusState">
+    select OFFICE_BONUS_STATUS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10'
+  </select>
+  //获取商务人数是否分配完毕的状态，现阶段和以后的层次不同会改变
+  <select id="getPeoNumState">
+    select TUBE_PERSON_SUBSTATUS, COMMERCE_PERSON_SUBSTATUS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10'
+  </select>
+  //获取区域审批的状态
+  <select id="getAreaCheckAllState">
+    select sum(to_number(INDEXAREA_EX_STATUS)) as SUM from COS_INX_AREAOPERATESTATUS
+    where YEARS=(select YEARS FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    and QUARTER=(select QUARTER FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+  </select>
+  <!--/************* 查看各办奖金分配情况 **************/-->
+  //获取公司的id和name
+  <select id="getCompanyRelation">
+    select ID,NAME
+    from COS_INX_ORGANIZATION
+    where TYPE = '10'
+  </select>
+  //show各办奖金分配表中读取数据
+  <select id="showOfficeBonus">
+    select
+    ROWNUM, ID, OFFICE_NAME, DEPTPERSONS, JX_FEN, SUM_FEN, TOTAL, PER_CAPITA,COMMERCE_NUMBER,
+    EX_COMMERCE_NUMBER, COMMERCE_MONEY,TUBE_NUMBER, EX_TUBE_NUMBER, TUBE_MONEY,
+    PROBATION, POSITIVE, MONTHS_NUMBER, TRUE_TOTAL, SUB_CHECK_STATUS, JD_SUM, JD_AVE
+    from COS_INX_OFFICEBONUS
+    where YEARS=(:1) and QUARTER=(:2) and COMPANY_ID=(:3)
+    order by ID asc
+  </select>
+
+
+  <!--查询区域的所有人员的奖金分配情况-->
+  <select id="showBonusByArea">
+    SELECT ROWNUM, T1.*
+    FROM (SELECT T2.OFFICE_NAME, T2."NAME", T1.ENTRY_TIME, T1.POSITIVE_TIME,
+    T2.PROPORTION, T2.SUPERIORPRO, T2.REMARKS, T2.REMARKSPRO,T2.HS_AWARD
+    FROM COS_INX_EMPLOYEEINFO T1,
+    (SELECT T2.OFFICE_NAME,T1."NAME",T1.EMPLOYEEINFO_ID,T1.PROPORTION,
+    T1.SUPERIORPRO,T1.REMARKS,T1.REMARKSPRO,T1.HS_AWARD
+    FROM COS_INX_PERSONBONUS T1,
+    (select ID,OFFICE_NAME
+    from COS_INX_OFFICEBONUS
+    where YEARS = (:1)
+    and QUARTER = (:2)
+    AND INDEXAREA_ID = (:3)) T2
+    WHERE T1.OFFICEBONUS_ID=T2."ID") T2
+    WHERE T1.ID=T2.EMPLOYEEINFO_ID
+    ORDER BY T2.OFFICE_NAME, T2.HS_AWARD) T1
+  </select>
+  <!--/************* 计算奖金 **************/-->
+  <select id="computeEmployeeBonus">
+    select t1.*, t2.POSITION
+    from
+    (select t1.ID, t1.OFFICEBONUS_ID, t1.CODE, t1.SUPERIORPRO, t2.TRUE_TOTAL, t2.DEPTPERSONS
+    from COS_INX_PERSONBONUS t1, COS_INX_OFFICEBONUS t2
+    where t2.ID = t1.OFFICEBONUS_ID
+    and t1.YEARS=(select YEARS FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    and t2.QUARTER=(select QUARTER FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    ) t1, COS_INX_EMPLOYEEINFO t2
+    where t1.CODE = t2.CODE
+  </select>
+  <select id="getPerAreaBonus">
+    select  ID,AWARD,NAME
+    from COS_INX_COMPANYBONUS
+    where YEARS=(:1)
+    and QUARTER=(:2)
+  </select>
+<!--/************** lyj ********************************************************************/-->
+
+  <!-- 导出员工信息到excel -->
+  <select id="exportEmployeeInfo">
+    select * from COS_INX_EMPLOYEEINFO
+  </select>
+
+  <!-- 更新员工信息表valid字段为 0 ,代表逻辑删除 -->
+  <select id="updateEmployeeInfoValid">
+    update COS_INX_EMPLOYEEINFO set valid = '0' where 1 = 1
+  </select>
+
+  <!-- 查询员工信息表中是否存在这个人code -->
+  <select id="searchEmployeeHave">
+    select count(*) num from COS_INX_EMPLOYEEINFO where code = (:1)
+  </select>
+
+  <!-- 插入这条员工信息 -->
+  <select id="insertEmployeeInfo">
+    insert into COS_INX_EMPLOYEEINFO(id,code,name,rank,position,entry_time,positive_time,orgid,departure_time,remarks,valid)
+    values
+    (
+    SEQ_COS_INX_EMPLOYEEINFO.NEXTVAL,
+    (:1),
+    (:2),
+    '',
+    '',
+    TO_DATE((:3),'yyyy-mm-dd'),
+    TO_DATE((:4),'yyyy-mm-dd'),
+    '',
+    TO_DATE((:5),'yyyy-mm-dd'),
+    (:6),
+    '1'
+    )
+  </select>
+
+  <!-- 更新这条员工信息 -->
+  <select id="updateEmployeeInfo">
+    update COS_INX_EMPLOYEEINFO
+    set
+    name = (:1),
+    <!--rank = '',-->
+    <!--position = '',-->
+    entry_time = TO_DATE((:2),'yyyy-mm-dd'),
+    positive_time = TO_DATE((:3),'yyyy-mm-dd'),
+    <!--orgid = '',-->
+    departure_time = TO_DATE((:4),'yyyy-mm-dd'),
+    remarks = (:5),
+    valid = '1'
+    where code = (:6)
+  </select>
+
+  <!-- 判断主管申报状态（保存/提交） -->
+  <select id="searchOperatingState">
+    select sub_check_status status from COS_INX_OFFICEBONUS where office_id = (:1)
+    and QUARTER = (select QUARTER from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    and YEARS = (select YEARS from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+  </select>
+
+  <!-- 查询办事处员工的奖金表数据 -->
+  <select id="getEmployeeBonusInfo">
+    select rownum,aa.id,aa.code,aa.name,bb.POSITION,bb.ENTRY_TIME,bb.POSITIVE_TIME,aa.REMARKS,aa.PROPORTION,aa.SUPERIORPRO,aa.REMARKSPRO
+    from
+    (select *
+    from COS_INX_PERSONBONUS
+    where officebonus_id = (select id from COS_INX_OFFICEBONUS where office_id = (:1) and QUARTER = (select QUARTER from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10') and YEARS = (select YEARS from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10'))
+    and QUARTER = (select QUARTER from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    and YEARS = (select YEARS from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')) aa
+    left join COS_INX_EMPLOYEEINFO bb
+    on (aa.employeeinfo_id = bb.id)
+    where bb.position = '10'
+  </select>
+
+  <!-- 查询办事处员工的奖金表数据search -->
+  <select id="searchEmployeeBonusInfo">
+    select rownum,aa.id,aa.code,aa.name,bb.POSITION,bb.ENTRY_TIME,bb.POSITIVE_TIME,aa.REMARKS,aa.PROPORTION,aa.SUPERIORPRO,aa.REMARKSPRO
+    from
+    (select *
+    from COS_INX_PERSONBONUS
+    where officebonus_id = (select id from COS_INX_OFFICEBONUS where office_id = (:1) and QUARTER = (:2) and YEARS = (:3))
+    and QUARTER = (:2)
+    and YEARS = (:3)) aa
+    left join COS_INX_EMPLOYEEINFO bb
+    on (aa.employeeinfo_id = bb.id)
+    where bb.position = '10'
+  </select>
+
+  <!-- 查询办事处＊＊员工和主管＊＊的奖金表数据 -->
+  <select id="getEmployeeBonusAndManagerInfo">
+    select aa.id,aa.code,aa.name,bb.POSITION,bb.ENTRY_TIME,bb.POSITIVE_TIME,aa.REMARKS,aa.PROPORTION,aa.SUPERIORPRO,aa.REMARKSPRO
+    from
+    (select *
+    from COS_INX_PERSONBONUS
+    where officebonus_id = (select id from COS_INX_OFFICEBONUS where office_id = (:1) and QUARTER = (select QUARTER from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10') and YEARS = (select YEARS from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10'))
+    and QUARTER = (select QUARTER from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    and YEARS = (select YEARS from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')) aa
+    left join COS_INX_EMPLOYEEINFO bb
+    on (aa.employeeinfo_id = bb.id)
+    where bb.position = '20'
+    union all
+    select aa.id,aa.code,aa.name,bb.POSITION,bb.ENTRY_TIME,bb.POSITIVE_TIME,aa.REMARKS,aa.PROPORTION,aa.SUPERIORPRO,aa.REMARKSPRO
+    from
+    (select *
+    from COS_INX_PERSONBONUS
+    where officebonus_id = (select id from COS_INX_OFFICEBONUS where office_id = (:1) and QUARTER = (select QUARTER from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10') and YEARS = (select YEARS from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10'))
+    and QUARTER = (select QUARTER from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    and YEARS = (select YEARS from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')) aa
+    left join COS_INX_EMPLOYEEINFO bb
+    on (aa.employeeinfo_id = bb.id)
+    where bb.position = '10'
+  </select>
+
+  <!-- 更新员工奖金表 -->
+  <select id="updateEmployeeBonus">
+    update COS_INX_PERSONBONUS set REMARKS = (:1) , proportion = (:2) where id = (:3)
+    and QUARTER = (select QUARTER from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    and YEARS = (select YEARS from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+  </select>
+
+  <select id="updateOfficeBonusStatus">
+    update COS_INX_OFFICEBONUS set sub_check_status = '20',declare_pers = (:1),declare_time = sysdate where office_id = (:2)
+    and QUARTER = (select QUARTER from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    and YEARS = (select YEARS from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+  </select>
+
+  <select id="office_submit_status">
+    select rownum,t1.ID,t1.office_name name,t1.office_id,t1.sub_check_status,t1.declare_time,t1.declare_pers
+    from COS_INX_OFFICEBONUS t1 where indexarea_id = (:1)
+    and QUARTER = (select QUARTER from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    and YEARS = (select YEARS from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+  </select>
+
+  <select id="panduan_office_submit_status">
+    select sub_check_status from COS_INX_OFFICEBONUS where office_id = (:1) and QUARTER = (select QUARTER from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10') and YEARS = (select YEARS from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+  </select>
+
+  <!--上级审批－更新员工奖金表数据-->
+  <select id="area_change_bonus">
+    update COS_INX_PERSONBONUS set superiorPro = (:1),remarksPro = (:2),JS_AWARD = (:3),HS_AWARD = (:4) where id = (:5)
+    and QUARTER = (select QUARTER from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    and YEARS = (select YEARS from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+  </select>
+
+  <!--上级审批－保存员工奖金表数据-->
+  <select id="area_save_bonus">
+    update COS_INX_PERSONBONUS set superiorPro = (:1),remarksPro = (:2) where id = (:3)
+    and QUARTER = (select QUARTER from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    and YEARS = (select YEARS from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+  </select>
+
+  <!--上级审批－更新员工奖金表的主管系数数据-->
+  <select id="area_change_bonus_manager">
+    update COS_INX_PERSONBONUS set proportion = (:1),remarksPro = (:2) where id = (:3)
+    and QUARTER = (select QUARTER from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    and YEARS = (select YEARS from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+  </select>
+
+  <!--办事处审批状态修改-->
+  <select id="office_submit_status_change">
+    update COS_INX_OFFICEBONUS set sub_check_status = '30',examine_pers = (:1),examine_time = sysdate where office_id = (:2)
+    and QUARTER = (select QUARTER from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    and YEARS = (select YEARS from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+  </select>
+
+  <!-- 主管申报给上级发信息 -->
+  <select id="setMessageForArea">
+    INSERT INTO COS_INX_REMIND(ID,YEARS,QUARTER,CONTENT,STATUS,PERID,SUB_TIME)
+    VALUES
+    (
+    SEQ_COS_INX_REMIND.NEXTVAL,
+    (select YEARS from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10'),
+    (select QUARTER from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10'),
+    (select name || (:1) from COS_INX_ORGANIZATION where id = (:2)),
+    'N',
+    (select RESPONSIBLEPER from COS_INX_ORGANIZATION where id = (:2)),
+    SYSDATE
+    <!--(select id from COS_INX_EMPLOYEEINFO where id = (select RESPONSIBLEPER from COS_INX_ORGANIZATION where id = (select orgid from COS_INX_EMPLOYEEINFO where id = (:2))))-->
+    )
+  </select>
+  <!--先注了-->
+  <!--<select id="setMessageForArea">-->
+    <!--INSERT INTO COS_INX_REMIND(ID,YEARS,QUARTER,CONTENT,STATUS,PERID,SUB_TIME)-->
+    <!--VALUES-->
+    <!--(-->
+    <!--SEQ_COS_INX_REMIND.NEXTVAL,-->
+    <!--(select YEARS from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10'),-->
+    <!--(select QUARTER from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10'),-->
+    <!--(select name || (:1) from COS_INX_ORGANIZATION where id = (:2) and QUARTER = (select QUARTER from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10') and YEARS = (select YEARS from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')),-->
+    <!--'N',-->
+    <!--(select RESPONSIBLEPER from COS_INX_ORGANIZATION where id = (:2) and QUARTER = (select QUARTER from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10') and YEARS = (select YEARS from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')),-->
+    <!--SYSDATE-->
+    <!--&lt;!&ndash;(select id from COS_INX_EMPLOYEEINFO where id = (select RESPONSIBLEPER from COS_INX_ORGANIZATION where id = (select orgid from COS_INX_EMPLOYEEINFO where id = (:2))))&ndash;&gt;-->
+    <!--)-->
+  <!--</select>-->
+
+  <select id="getManagerCoefficient">
+    <!--select coefficient from COS_INX_OFFICEBONUS where office_id = (:1)-->
+    select id,proportion
+    from
+    COS_INX_PERSONBONUS
+    where employeeinfo_id in (select id from COS_INX_EMPLOYEEINFO where orgid = '10000012')
+    and QUARTER = (select QUARTER from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    and YEARS = (select YEARS from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+  </select>
+
+  <select id="getOfficeMoney">
+    select office_id,office_name,true_total from COS_INX_OFFICEBONUS where office_id = (:1)
+    and QUARTER = (select QUARTER from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    and YEARS = (select YEARS from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+  </select>
+
+  <!--获得办事处里面的财务商务/箱管-->
+  <select id="getOfficeComTubeMoney">
+    select sum(COMMERCE_MONEY) ALL_COMMERCE_MONEY,sum(TUBE_MONEY) ALL_TUBE_MONEY from COS_INX_OFFICEBONUS where
+    QUARTER = (select QUARTER from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    and YEARS = (select YEARS from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+  </select>
+
+  <!--获得各办事处主管系数信息状态-->
+  <select id="getOfficeSetState">
+    select times.MANAGER_COEFFICIENT_STATUS
+    from COS_INX_TIMESTATUS times
+    where times.YEARS = (:1)
+    and times.QUARTER = (:2)
+  </select>
+
+  <!--获得各办事处主管系数信息-->
+  <select id="getOfficeSet">
+    <!--select off.OFFICE_ID,off.OFFICE_NAME,off.MANAGER_ID,emp.NAME,off.COEFFICIENT,off.COEFFICIENT_REMARKS-->
+    <!--from COS_INX_OFFICEBONUS off-->
+    <!--left join COS_INX_EMPLOYEEINFO emp on emp.id = off.MANAGER_ID-->
+    <!--where off.YEARS = (:1)-->
+    <!--and off.QUARTER = (:2)-->
+    <!--order by off.OFFICE_ID-->
+    select per.id as MANAGER_ID,org.name as OFFICE_NAME,per.name as NAME,per.PROPORTION as COEFFICIENT,per.REMARKS as COEFFICIENT_REMARKS
+    from COS_INX_PERSONBONUS per
+    left join COS_INX_EMPLOYEEINFO emp on per.EMPLOYEEINFO_ID = emp."ID"
+    left join COS_INX_ORGANIZATION org on emp.ORGID = org.id
+    where emp.POSITION = '20'
+    and per.YEARS = (:1)
+    and per.QUARTER = (:2)
+  </select>
+  <!--保存各办事处主管系数信息-->
+  <select id="saveOfficeSet">
+    <!--update COS_INX_OFFICEBONUS off-->
+    <!--set off.COEFFICIENT = (:1),off.COEFFICIENT_REMARKS = (:2)-->
+    <!--where off.YEARS = (:3)-->
+    <!--and off.QUARTER = (:4)-->
+    <!--and off.MANAGER_ID = (:5)-->
+    update COS_INX_PERSONBONUS per
+    set per.PROPORTION = (:1),per.REMARKS = (:2)
+    where per.YEARS = (:3)
+    and per.QUARTER = (:4)
+    and per.id = (:5)
+  </select>
+  <!--更新操作状态表办事处主管系数状态-->
+  <select id="setOfficeSetState">
+    update COS_INX_TIMESTATUS time
+    set time.MANAGER_COEFFICIENT_STATUS = '1'
+    where time.YEARS = (:1)
+    and time.QUARTER = (:2)
+  </select>
+
+  <select id="getAllOfficeStatus">
+    select id,rownum,office_id,office_name,SUB_CHECK_STATUS,DECLARE_PERS,DECLARE_TIME,EXAMINE_PERS,EXAMINE_TIME from COS_INX_OFFICEBONUS
+    where QUARTER = (select QUARTER from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    and YEARS = (select YEARS from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+  </select>
+
+  <!-- 获得部门(公司)码表数据 -->
+  <select id="getDeptTable">
+    select ID,name,PARENTORGID from COS_INX_ORGANIZATION where type = '10'
+  </select>
+
+  <!-- 获得组/办事处码表数据 -->
+  <select id="getOfficeTable">
+    select ID,name,PARENTORGID from COS_INX_ORGANIZATION where type = '30'
+  </select>
+
+  <!-- 获得员工码表数据 -->
+  <select id="getEmpTable">
+    select id,code,name from COS_INX_EMPLOYEEINFO
+  </select>
+
+  <!-- 获得公司那张大表 -->
+  <select id="getCompanyBigTable">
+    select
+    rowNum,t1.name,t1.code,t1.years,t1.quarter,t1.entry_time,t1.positive_time,t1.departure_time,t1.proportion,t1.superiorpro,t1.hs_award now_award,t2.hs_award pre_award,
+    t1.CGROUP,t1.rank,t1.CJBMONEY,t1.CGWMONEY,t1.CJBMONEYSUM,t1.REMARKS,
+    t1.cxcmoney,t1.cotherfoodmoney,t1.czwmoney,t1.cdqmoney,t1.cothersubsidy,t2.CJBMONEYSUM PRE_CJBMONEYSUM,
+    t1.crankStandard,t1.cranksum,t1.cmoneyadd,t1.cmonthmoneyadd,
+    t1.cdept,t1.clei,
+    t1.office_name,t1.COMPANY_NAME
+    from
+    (select
+    per.name,per.code,per.years,per.quarter,
+    emp.entry_time,emp.positive_time,emp.departure_time,
+    per.proportion,per.superiorpro,per.hs_award,
+    emp.CGROUP,emp.rank,emp.CJBMONEY,emp.CGWMONEY,emp.CJBMONEYSUM,emp.REMARKS,
+    emp.cxcmoney,emp.cotherfoodmoney,emp.czwmoney,emp.cdqmoney,emp.cothersubsidy,
+    emp.crankStandard,emp.cranksum,emp.cmoneyadd,emp.cmonthmoneyadd,
+    emp.cdept,emp.clei,
+    per.OFFICE_NAME,per.COMPANY_NAME
+    from
+    (
+    select p.*,o.OFFICE_NAME,o.COMPANY_NAME
+    from COS_INX_PERSONBONUS p,COS_INX_OFFICEBONUS o
+    where p.OFFICEBONUS_ID = o.id
+    and p.years = (select YEARS from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    and p.quarter = (select QUARTER from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    ) per
+    left join COS_INX_EMPLOYEEINFO emp
+    on per.code = emp.code and per.name = emp.name) t1
+    left join
+    (select
+    per.name,per.code,per.years,per.quarter,
+    emp.entry_time,emp.positive_time,emp.departure_time,
+    per.proportion,per.superiorpro,per.hs_award,
+    emp.CGROUP,emp.rank,emp.CJBMONEY,emp.CGWMONEY,emp.CJBMONEYSUM,emp.REMARKS,
+    emp.cxcmoney,emp.cotherfoodmoney,emp.czwmoney,emp.cdqmoney,emp.cothersubsidy,
+    emp.crankStandard,emp.cranksum,emp.cmoneyadd,emp.cmonthmoneyadd,
+    emp.cdept,emp.clei,
+    per.OFFICE_NAME,per.COMPANY_NAME
+    from
+    (
+    select p.*,o.OFFICE_NAME,o.COMPANY_NAME
+    from COS_INX_PERSONBONUS p,COS_INX_OFFICEBONUS o
+    where p.OFFICEBONUS_ID = o.id
+    and p.years = (:1)
+    and p.quarter = (:2)
+    ) per
+    left join COS_INX_EMPLOYEEINFO emp
+    on per.code = emp.code and per.name = emp.name) t2
+    on t1.code = t2.code and t1.name = t2.name
+  </select>
+
+  <select id="searchOfficePersonNum">
+    select pp.allNum,qq.zhuNum,ww.zhuxishu from
+    (
+
+    select count(*) allNum from COS_INX_PERSONBONUS where OFFICEBONUS_ID = (:1)) pp,
+
+    (select count(*) zhuNum
+    from
+    (select *
+    from COS_INX_PERSONBONUS
+    where officebonus_id = (:1)
+    ) aa
+    left join COS_INX_EMPLOYEEINFO bb
+    on (aa.employeeinfo_id = bb.id)
+    where bb.position = '20') qq,
+    (select sum(proportion) zhuxishu
+    from
+    (select *
+    from COS_INX_PERSONBONUS
+    where officebonus_id = (:1)
+    ) aa
+    left join COS_INX_EMPLOYEEINFO bb
+    on (aa.employeeinfo_id = bb.id)
+    where bb.position = '20') ww
+  </select>
+
+  <!--获得所有办事处的员工的奖金分配情况-->
+  <select id="searchAllOfficeEmpBounsInfo">
+    select aa.id,aa.code,aa.name,aa.officebonus_id,bb.POSITION,bb.ENTRY_TIME,bb.POSITIVE_TIME,aa.REMARKS,aa.PROPORTION,aa.SUPERIORPRO,aa.REMARKSPRO
+    from
+    (select *
+    from COS_INX_PERSONBONUS
+    where officebonus_id = (:1)
+    and QUARTER = (select QUARTER from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    and YEARS = (select YEARS from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')) aa
+    left join COS_INX_EMPLOYEEINFO bb
+    on (aa.employeeinfo_id = bb.id)
+    where bb.position = '20'
+    union all
+    select aa.id,aa.code,aa.name,aa.officebonus_id,bb.POSITION,bb.ENTRY_TIME,bb.POSITIVE_TIME,aa.REMARKS,aa.PROPORTION,aa.SUPERIORPRO,aa.REMARKSPRO
+    from
+    (select *
+    from COS_INX_PERSONBONUS
+    where officebonus_id = (:1)
+    and QUARTER = (select QUARTER from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    and YEARS = (select YEARS from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')) aa
+    left join COS_INX_EMPLOYEEINFO bb
+    on (aa.employeeinfo_id = bb.id)
+    where bb.position = '10'
+  </select>
+
+  <select id="updteEmpMoney">
+    update COS_INX_PERSONBONUS set JS_AWARD = (:1),HS_AWARD = (:2) where id = (:3)
+  </select>
+
+  <!--点开始之前，判断绩效表里面是不是有要操作季度的数据-->
+  <select id="checkJiXiaoInfo">
+    select count(*) from COS_INX_PERSUM where MONTH = (select case when quarter = 1 then '一季度' when quarter = 2 then '二季度' when QUARTER = 3 then '三季度' when QUARTER = 4 then '四季度' end from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    and YEARS = (select YEARS from COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+  </select>
+
+  <!--查询员工基本信息-->
+  <select id="info_get">
+    select rownum,t1.ID,t1.CODE,t1.NAME,t1.RANK,t1.CLEI,t1.POSITION,t1.ENTRY_TIME,t1.POSITIVE_TIME,t1.DEPARTURE_TIME,t1.ORGID,t1.REMARKS,t1.CDEPT,t1.CGROUP,t2.NAME as "NAME2",t2."O_NAME"
+    from COS_INX_EMPLOYEEINFO t1
+    left join
+    (
+    select tt2.name,tt1.id,tt1.name as "O_NAME"  from (select * from COS_INX_ORGANIZATION where type=20) tt1
+    left join (select * from COS_INX_ORGANIZATION where type=10) tt2
+    on tt1.PARENTORGID=tt2.ID
+    union all select name,id,name as "O_NAME" from COS_INX_ORGANIZATION where type=10
+    union all
+
+    select t2.NAME,t1.ID,t1.name as "O_NAME"
+    from (select * from COS_INX_ORGANIZATION where type=30) t1
+    left join
+    (select tt2.name,tt1.ID  from (select * from COS_INX_ORGANIZATION where type=20) tt1
+    left join (select * from COS_INX_ORGANIZATION where type=10) tt2
+    on tt1.PARENTORGID=tt2.ID) t2
+    on t1.PARENTORGID=t2.ID
+
+    ) t2
+    on t1.ORGID=t2.id
+  </select>
+
+  <!--办事处列表sql-->
+  <select id="office_list_get">
+    select tt2.name,tt1.id,tt1.name as "O_NAME"  from (select * from COS_INX_ORGANIZATION where type=20) tt1
+    left join (select * from COS_INX_ORGANIZATION where type=10) tt2
+    on tt1.PARENTORGID=tt2.ID
+    union all select name,id,name as "O_NAME" from COS_INX_ORGANIZATION where type=10
+    union all
+
+    select t2.NAME,t1.ID,t1.name as "O_NAME"
+    from (select * from COS_INX_ORGANIZATION where type=30) t1
+    left join
+    (select tt2.name,tt1.ID  from (select * from COS_INX_ORGANIZATION where type=20) tt1
+    left join (select * from COS_INX_ORGANIZATION where type=10) tt2
+    on tt1.PARENTORGID=tt2.ID) t2
+    on t1.PARENTORGID=t2.ID
+  </select>
+
+  <!--员工信息修改-->
+  <select id="edit_info">
+    update COS_INX_EMPLOYEEINFO
+    set CODE=(:1),ORGID=to_number((:2)),NAME=(:3),
+    rank=(:4),ENTRY_TIME=to_date((:5),'yyyy-mm-dd hh24:mi:ss'),
+    POSITIVE_TIME=to_date((:6),'yyyy-mm-dd hh24:mi:ss'),
+    DEPARTURE_TIME=to_date((:7),'yyyy-mm-dd hh24:mi:ss'),REMARKS=(:8),
+
+    CLEI=(:9),CDEPT=(:10),CGROUP=(:11),CJBMONEY=(:12),CGWMONEY=(:13),CXCMONEY=(:14),COTHERFOODMONEY=(:15),
+    CZWMONEY=(:16),CDQMONEY=(:17),COTHERSUBSIDY=(:18),CJBMONEYSUM=(:19),POSITION=(:20)
+    where id=to_number((:21))
+  </select>
+
+  <!--删除员工信息-->
+  <select id="delete_info">
+    delete from COS_INX_EMPLOYEEINFO where id = (:1)
+  </select>
+
+  <!--查这个人的员工信息-->
+  <select id="getOneEmpInfo">
+    select * from COS_INX_EMPLOYEEINFO where id = (:1)
+  </select>
+
+</sql>
+

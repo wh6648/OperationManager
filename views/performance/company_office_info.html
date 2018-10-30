@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>审核过程</title>
+
+    <% include ../_required.html %>
+    <link rel="stylesheet" href="<%= dynamic('/assets/dataTable/media/css/jquery.dataTables.css') %>" />
+    <!--所有页面都会用到的样式-->
+    <link rel="stylesheet" href="<%= dynamic('/stylesheets/performance/frameworkStyle.css') %>"/>
+
+    <style type="text/css">
+        thead{
+            white-space:nowrap;
+        }
+
+        #example_wrapper {
+            width: 900px !important;
+        }
+        #example1_wrapper {
+
+        }
+        .container{
+            margin-left: 0px !important;
+        }
+        .modal-dialog{
+            width: 880px;
+        }
+        /*控制表格的高度*/
+        table.dataTable tbody th, table.dataTable tbody td {
+            padding: 6px 10px;
+        }
+        input{
+            width: 100px;
+            height: 30px;
+        }
+        thead {
+            background: #D9E8F7;
+            color: #307ecc;
+            font-size: 12px;
+        }
+        /*button样式*/
+        .btn-xs {
+            border-width: 0px;
+            margin-right: 2px;
+        }
+        .edit-input {
+            width: 50px;
+        }
+        tfoot tr td {
+            color: red;
+        }
+        /*提交状态*/
+        .submit-status-ok {
+            color: green;
+        }
+        .submit-status {
+            color: #A4A4A5;
+        }
+    </style>
+
+</head>
+<body class="no-skin dt-example" style="overflow-x: hidden" data-value="company_office_info">
+
+<% include _performance_header.html %>
+
+<div class="modal fade" id="check_submit"><!-- /.modalr -->
+    <div class="modal-dialog">
+        <div class="modal-content" >
+            <div class="modal-body">
+                <p id="hid_office_id" hidden></p>
+
+                <button type="button" class="close" data-dismiss="modal" style="font-size: 32px;">
+                    <span aria-hidden="true">×</span>
+                    <span class="sr-only">Close</span>
+                </button>
+
+                <section>
+                    <!--<h1>绩效填报<span>2015年第三季度</span></h1>-->
+
+                    <table id="example1" class="display" cellspacing="0">
+                        <thead>
+
+                        </thead>
+
+                        <tbody>
+                        <!-- <tr>
+                             <td></td>
+                             <td>王芳</td>
+                             <td>12000</td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                         </tr>
+                         <tr>
+                             <td></td>
+                             <td>刘东</td>
+                             <td>13060</td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                         </tr>
+                         <tr>
+                             <td></td>
+                             <td>李华</td>
+                             <td>12398</td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                         </tr>
+                         <tr>
+                             <td></td>
+                             <td>张东</td>
+                             <td>12343</td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                         </tr>
+                         <tr>
+                             <td></td>
+                             <td>周文伟</td>
+                             <td>14537</td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                         </tr>
+                         <tr>
+                             <td></td>
+                             <td>李东方</td>
+                             <td>16689</td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                         </tr>
+                         <tr>
+                             <td></td>
+                             <td>郭峰</td>
+                             <td>18532</td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                         </tr>
+                         <tr>
+                             <td></td>
+                             <td>王实甫</td>
+                             <td>12478</td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                         </tr>
+                         <tr>
+                             <td></td>
+                             <td>周森锋</td>
+                             <td>12479</td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                         </tr>
+                         <tr>
+                             <td></td>
+                             <td>韩词</td>
+                             <td>18734</td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                         </tr>
+                         <tr>
+                             <td></td>
+                             <td>黛妮思</td>
+                             <td>19734</td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                         </tr>
+                         <tr>
+                             <td></td>
+                             <td>赵四季</td>
+                             <td>13657</td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                         </tr>
+                         <tr>
+                             <td></td>
+                             <td>刘树蜂</td>
+                             <td>12567</td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                         </tr>
+                         <tr>
+                             <td></td>
+                             <td>石莎瓦</td>
+                             <td>13234</td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                         </tr>-->
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <td>合计:</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td id="pra_sum">0%</td>
+                            <td></td>
+                        </tr>
+                        </tfoot>
+                    </table>
+                    <!--
+                                        <button class="btn btn-primary" style="margin-left: 10px;">确定</button>-->
+                </section>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+
+        <div class="tabbable">
+            <div class="tabbable tabs-left">
+
+                <div class="sidebar" id="sidebar">
+                    <% include _left_report.html %>
+                </div>
+
+                <div class="main-content">
+                    <div class="breadcrumbs" id="breadcrumbs">
+                        <script type="text/javascript">
+                            try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+                        </script>
+
+                        <ul class="breadcrumb">
+                            <li>
+                                <i class="ace-icon fa fa-home home-icon"></i>
+                                <a href="/site/flowChart?name=绩效考核">Home</a>
+                            </li>
+
+                            <li>
+                                人资管理
+                            </li>
+                            <li class="active">
+                                上级审核过程查询
+                            </li>
+                        </ul><!-- /.breadcrumb -->
+
+                    </div>
+
+                    <div class="tab-content" id="page-content">
+                        <div class="container" style="width: 800px">
+                            <section>
+
+                                <table id="example" class="display" cellspacing="0" width="100%">
+                                    <thead>
+
+                                    </thead>
+
+                                    <tbody>
+                                    <!-- <tr>
+                                         <td></td>
+                                         <td></td>
+                                         <td><i class="ace-icon glyphicon glyphicon-ok submit-status-ok"></i></td>
+                                         <td>王芳</td>
+                                         <td>2002-03-04</td>
+                                         <td><span class='label label-success arrowed-in arrowed-right' name="row-1-position">已审批</span></td>
+                                     </tr>
+                                     <tr>
+                                         <td></td>
+                                         <td></td>
+                                         <td><i class="ace-icon glyphicon glyphicon-ok submit-status"></i></td>
+                                         <td>刘东</td>
+                                         <td>2002-03-04</td>
+                                         <td><span class="label arrowed label-warning arrowed-in-right">未审批</span></td>
+                                     </tr>
+                                     <tr>
+                                         <td></td>
+                                         <td></td>
+                                         <td><i class="ace-icon glyphicon glyphicon-ok submit-status"></i></td>
+                                         <td>李华</td>
+                                         <td></td>
+                                         <td><span class="label arrowed label-warning arrowed-in-right">未审批</span></td>
+                                     </tr>
+                                     <tr>
+                                         <td></td>
+                                         <td></td>
+                                         <td><i class="ace-icon glyphicon glyphicon-ok submit-status-ok"></i></td>
+                                         <td>李东方</td>
+                                         <td>2002-03-04</td>
+                                         <td><span class="label arrowed label-warning arrowed-in-right">未审批</span></td>
+                                     </tr>
+                                     <tr>
+                                         <td></td>
+                                         <td></td>
+                                         <td><i class="ace-icon glyphicon glyphicon-ok submit-status-ok"></i></td>
+                                         <td>王石浦</td>
+                                         <td>2002-03-04</td>
+                                         <td><span class='label label-success arrowed-in arrowed-right' name="row-1-position">已审批</span></td>
+                                     </tr>
+                                     <tr>
+                                         <td></td>
+                                         <td></td>
+                                         <td><i class="ace-icon glyphicon glyphicon-ok submit-status-ok"></i></td>
+                                         <td>韩词</td>
+                                         <td>2002-03-04</td>
+                                         <td><span class="label arrowed label-warning arrowed-in-right">未完成</span></td>
+                                     </tr>
+                                     <tr>
+                                         <td></td>
+                                         <td></td>
+                                         <td><i class="ace-icon glyphicon glyphicon-ok submit-status-ok"></i></td>
+                                         <td>郭峰</td>
+                                         <td>2002-03-04</td>
+                                         <td><span class='label label-success arrowed-in arrowed-right' name="row-1-position">已审批</span></td>
+                                     </tr>
+                                     <tr>
+                                         <td></td>
+                                         <td></td>
+                                         <td><i class="ace-icon glyphicon glyphicon-ok submit-status"></i></td>
+                                         <td>张东</td>
+                                         <td>2002-03-04</td>
+                                         <td><span class='label label-success arrowed-in arrowed-right' name="row-1-position">已审批</span></td>
+                                     </tr>
+                                     <tr>
+                                         <td></td>
+                                         <td></td>
+                                         <td><i class="ace-icon glyphicon glyphicon-ok submit-status-ok"></i></td>
+                                         <td>白小飞</td>
+                                         <td>2002-03-04</td>
+                                         <td><span class="label arrowed label-warning arrowed-in-right">未审批</span></td>
+                                     </tr>-->
+                                    </tbody>
+                                </table>
+
+
+                            </section>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<% include ../_footer.html %>
+
+<script src="/static/assets/js/ace.min.js"></script>
+
+<script type="text/javascript" src="<%= dynamic('/assets/dataTable/media/js/jquery.dataTables.js') %>"></script>
+<script type="text/javascript" src="<%= dynamic('/assets/dataTable/resources/syntax/shCore.js') %>"></script>
+<script type="text/javascript" src="<%= dynamic('/assets/dataTable/resources/demo.js') %>"></script>
+
+
+
+<script src="/static/javascripts/performance/company_office_info.js"></script>
+<script src="/static/javascripts/performance/note_show.js"></script>
+</body>
+</html>

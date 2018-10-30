@@ -1,0 +1,986 @@
+<sql>
+    //查询所有办事处员工奖金分配情况
+    <select id="bonus_by_area">
+        select rownum, t1.NAME,t1.DEPTCODE, t2.ENTRY_TIME, t2.POSITIVE_TIME, t1.REMARKS, t1.PROPORTION, t1.REMARKSPRO, t1.SUPERIORPRO, t1.HS_AWARD
+        from COS_INX_PERSONBONUS t1
+        left join COS_INX_EMPLOYEEINFO t2
+        on t1.CODE=t2.CODE
+        where t1.YEARS=(select YEARS FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+        and t1.QUARTER=(select QUARTER FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+        and (t1.DEPTCODE in (select ID from COS_INX_ORGANIZATION where PARENTORGID=to_number(:1)) or t1.DEPTCODE=to_number(:1))
+    </select>
+    //查询区域办事处列表
+    <select id="office_list_by_area">
+        select * from COS_INX_ORGANIZATION where PARENTORGID=(:1)
+        union all select * from COS_INX_ORGANIZATION where ID=(:1)
+    </select>
+    //按办事处查询员工奖金分配情况
+    <select id="bonus_by_office">
+        select rownum, t1.NAME,t1.DEPTCODE, t2.ENTRY_TIME, t2.POSITIVE_TIME, t1.REMARKS, t1.PROPORTION, t1.REMARKSPRO, t1.SUPERIORPRO, t1.HS_AWARD
+        from COS_INX_PERSONBONUS t1
+        left join COS_INX_EMPLOYEEINFO t2
+        on t1.CODE=t2.CODE
+        where t1.YEARS=(select YEARS FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+        and t1.QUARTER=(select QUARTER FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+        and t1.DEPTCODE=to_number(:1)
+    </select>
+    //办事处列表sql
+    <select id="office_list_get">
+        select tt2.name,tt1.id,tt1.name as "O_NAME"  from (select * from COS_INX_ORGANIZATION where type=20) tt1
+        left join (select * from COS_INX_ORGANIZATION where type=10) tt2
+        on tt1.PARENTORGID=tt2.ID
+        union all select name,id,name as "O_NAME" from COS_INX_ORGANIZATION where type=10
+        union all
+
+        select t2.NAME,t1.ID,t1.name as "O_NAME"
+        from (select * from COS_INX_ORGANIZATION where type=30) t1
+        left join
+        (select tt2.name,tt1.ID  from (select * from COS_INX_ORGANIZATION where type=20) tt1
+        left join (select * from COS_INX_ORGANIZATION where type=10) tt2
+        on tt1.PARENTORGID=tt2.ID) t2
+        on t1.PARENTORGID=t2.ID
+    </select>
+    //员工信息修改
+    <select id="edit_info">
+        update COS_INX_EMPLOYEEINFO
+        set CODE=(:1),ORGID=to_number((:2)),NAME=(:3),
+        POSITION=to_number((:4)),ENTRY_TIME=to_date((:5),'yyyy-mm-dd hh24:mi:ss'),
+        POSITIVE_TIME=to_date((:6),'yyyy-mm-dd hh24:mi:ss'),
+        DEPARTURE_TIME=to_date((:7),'yyyy-mm-dd hh24:mi:ss'),REMARKS=(:8)
+        where id=to_number((:9))
+    </select>
+    //删除员工信息
+    <select id="delete_info">
+        delete from COS_INX_EMPLOYEEINFO where id = (:1)
+    </select>
+    //查询员工基本信息
+    <select id="info_get">
+        select rownum,t1.ID,t1.CODE,t1.NAME,t1.RANK,t1.POSITION,t1.ENTRY_TIME,t1.POSITIVE_TIME,t1.DEPARTURE_TIME,t1.ORGID,t1.REMARKS,t2.NAME as "NAME2",t2."O_NAME"
+        from COS_INX_EMPLOYEEINFO t1
+        left join
+        (
+        select tt2.name,tt1.id,tt1.name as "O_NAME"  from (select * from COS_INX_ORGANIZATION where type=20) tt1
+        left join (select * from COS_INX_ORGANIZATION where type=10) tt2
+        on tt1.PARENTORGID=tt2.ID
+        union all select name,id,name as "O_NAME" from COS_INX_ORGANIZATION where type=10
+        union all
+
+        select t2.NAME,t1.ID,t1.name as "O_NAME"
+        from (select * from COS_INX_ORGANIZATION where type=30) t1
+        left join
+        (select tt2.name,tt1.ID  from (select * from COS_INX_ORGANIZATION where type=20) tt1
+        left join (select * from COS_INX_ORGANIZATION where type=10) tt2
+        on tt1.PARENTORGID=tt2.ID) t2
+        on t1.PARENTORGID=t2.ID
+
+        ) t2
+        on t1.ORGID=t2.id
+    </select>
+    <select id="bonus_put">
+        insert into COS_INX_OFFICEBONUS(ID,YEARS,QUARTER,ORGID,NAME,
+        DEPTPERSONS,JX_FEN,SUM_FEN,TOTAL,PER_CAPITA,COMMERCE_NUMBER,
+        COMMERCE_MONEY,PROBATION,POSITIVE,MONTHS_NUMBER,TRUE_TOTAL,SUBSTATUS)
+        values(SEQ_COS_INX_OFFICEBONUS.NEXTVAL,
+        (select YEARS FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10'),
+        (select QUARTER FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10'),
+        (:1),(:2),
+        (:3),(:4),(:5),(:6),(:7),(:8),(:9),(:10),(:11),(:12),(:13),(:14))
+    </select>
+    <select id="bonus_put_other">
+        update COS_INX_OFFICEBONUS set COMMERCE_NUMBER = (:1),
+        COMMERCE_MONEY=(:2),PROBATION=(:3),
+        POSITIVE=(:4),MONTHS_NUMBER=(:5),TRUE_TOTAL=(:6),SUBSTATUS=(:7) where ID = (:8)
+        and YEARS=(select YEARS FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+        and QUARTER=(select QUARTER FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    </select>
+    <select id="select_time">
+        SELECT * FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10'
+    </select>
+    <select id="bonus_get">
+        select
+        rownum,DEPT,DEPTPERSONS,JX_FEN
+        from
+        cos_inx_persum
+        where
+        YEARS=(select YEARS FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+        and MONTH=(select QUARTER FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+        <!--如果施加了这个条件那么这个数据库将查不到数据，所以现阶段将其注释，该模块完成，所以开放-->
+    </select>
+
+    //所有办事处提交状态查询--查组织表
+    <select id="get_office_organization">
+        select t1.ID,t1.NAME from COS_INX_ORGANIZATION t1 where
+        t1.ID not in(select ORGID from COS_INX_OFFICECHECKSTATUS where
+        YEARS=(select YEARS FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+        and QUARTER=(select QUARTER FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10'))
+    </select>
+    //所有办事处提交状态查询--查状态表
+    <select id="get_offcice_status">
+        select t1.*,t2.NAME from COS_INX_OFFICECHECKSTATUS t1,COS_INX_ORGANIZATION t2 where t1.ORGID=t2.ID
+        and t1.YEARS=(select YEARS FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+        and t1.QUARTER=(select QUARTER FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    </select>
+
+    //办事处提交状态查询--查组织表
+    <select id="office_submit_status">
+        select t1.ID,t1.NAME from COS_INX_ORGANIZATION t1 where t1.PARENTORGID=(:1)
+        and t1.ID not in
+        (select ORGID from COS_INX_OFFICECHECKSTATUS where
+        YEARS=(select YEARS FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+        and QUARTER=(select QUARTER FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10'))
+    </select>
+    //办事处提交状态查询--查状态表
+    <select id="office_submit_status_">
+        select t1.*,t2.NAME from COS_INX_OFFICECHECKSTATUS t1,COS_INX_ORGANIZATION t2 where orgid in
+        (select ID from COS_INX_ORGANIZATION where PARENTORGID=(:1)) and t1.ORGID=t2.ID
+    </select>
+    //办事处审批状态修改
+    <select id="office_submit_status_change">
+        update  COS_INX_OFFICECHECKSTATUS
+        set CHECK_STATUS=10,EXAMINE_TIME=SYSDATE,EXAMINE_PERS=(:1) where ORGID=(:2) and
+        YEARS=(select YEARS FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+        and QUARTER=(select QUARTER FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    </select>
+    //区域副总进行办事处员工奖金修改
+    <select id="area_change_bonus">
+        update COS_INX_PERSONBONUS set REMARKSPRO=(:1), SUPERIORPRO=(:2) where ID=(:3)
+    </select>
+    <select id="bonus_get_new">
+        select
+        rownum,
+        ID,NAME,DEPTPERSONS,JX_FEN,SUM_FEN,
+        TOTAL,PER_CAPITA,COMMERCE_NUMBER,
+        COMMERCE_MONEY,PROBATION,POSITIVE,
+        MONTHS_NUMBER,TRUE_TOTAL,SUBSTATUS
+        from
+        COS_INX_OFFICEBONUS
+        where
+        YEARS=(select YEARS FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+        and QUARTER=(select QUARTER FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    </select>
+    <select id="get_office_bonus">
+        select rownum,
+        b.NAME,c.DEPTPERSONS,c.JX_FEN,c.SUM_FEN,
+        c.TOTAL,c.PER_CAPITA,c.COMMERCE_NUMBER,
+        c.COMMERCE_MONEY,c.PROBATION,c.POSITIVE,
+        c.MONTHS_NUMBER,c.TRUE_TOTAL,c.SUBSTATUS
+        from (select ID from COS_INX_ORGANIZATION
+        where TYPE = '20' and PARENTORGID = (:1)) a,
+        (select NAME,ID,PARENTORGID from COS_INX_ORGANIZATION
+        where TYPE = '30') b
+        left join (select * from COS_INX_OFFICEBONUS
+        where YEARS = (:2) and QUARTER = (:3)) c
+        on b.ID = c.ORGID
+        where a.ID = b.PARENTORGID
+    </select>
+    <select id="msg_change_status">
+        update COS_INX_REMIND set STATUS='Y'
+        where ID=(:1)
+    </select>
+    //2015年第三季度绩效奖金额度Top10
+    <select id="jxfxtj_1">
+        select rownum,t1.ID,t1.NAME,t1.CODE,t1.DEPTNAME,t1.COMPANYNAME,t1.HS_AWARD,t2.POSITION
+        from COS_INX_PERSONBONUS t1,
+        (select CODE,POSITION from COS_INX_EMPLOYEEINFO where POSITION = 10) t2
+
+        where t1.CODE = t2.CODE
+        and YEARS=(select YEARS FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+        and QUARTER=(select QUARTER FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+        and rownum &lt; = 10
+        order by hs_award desc
+    </select>
+    //2015年第三季度绩效奖金额度Top-10
+    <select id="jxfxtj_2">
+        select rownum,t1.ID,t1.NAME,t1.CODE,t1.DEPTNAME,t1.COMPANYNAME,t1.HS_AWARD,t2.POSITION
+        from COS_INX_PERSONBONUS t1,
+        (select CODE,POSITION from COS_INX_EMPLOYEEINFO where POSITION = 10) t2
+
+        where t1.CODE = t2.CODE
+        and YEARS=(select YEARS FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+        and QUARTER=(select QUARTER FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+        and rownum &lt; = 10
+        order by hs_award asc
+    </select>
+    //2015年第三季度航线绩效奖金同比环比
+    <select id="jxfxtj_3">
+
+        select rownum,t.* from (
+        select t1.ID,t1.ORGID,t1.AREA_NAME,t1.NAME,t1.TRUE_TOTAL,(t1.TRUE_TOTAL/tb.TRUE_TOTAL) as "ntb",(t1.TRUE_TOTAL/hb.TRUE_TOTAL) as "nhb" from
+
+        (
+        select a.*,b."NAME" as "AREA_NAME" from COS_INX_OFFICEBONUS a,
+        (
+        select a.ID,b.NAME from COS_INX_ORGANIZATION a,
+        (
+        select ID,NAME from COS_INX_ORGANIZATION where PARENTORGID=10000001
+        ) b
+        where a.PARENTORGID=b.ID
+        ) b
+        where YEARS=(select YEARS FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+        and QUARTER=(select QUARTER FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+        and a.ORGID=b.ID
+        ) t1,
+        (
+        select ORGID,TRUE_TOTAL from COS_INX_OFFICEBONUS
+        where YEARS=('2014')
+        and QUARTER=(select QUARTER FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+        ) tb,
+        (
+        select ORGID,TRUE_TOTAL from COS_INX_OFFICEBONUS
+        where YEARS=('2014')
+        and QUARTER=('四季度')
+        ) hb
+
+        where t1.ORGID=tb.ORGID
+        and tb.ORGID=hb.ORGID
+        and t1.ORGID=hb.ORGID
+
+        union all
+        select t1.ID,t1.ORGID,t1.AREA_NAME,t1.NAME,t1.TRUE_TOTAL,0,0 from
+
+        (
+        select a.*,b."NAME" as "AREA_NAME" from COS_INX_OFFICEBONUS a,
+        (
+        select a.ID,b.NAME from COS_INX_ORGANIZATION a,
+        (
+        select ID,NAME from COS_INX_ORGANIZATION where PARENTORGID=10000001
+        ) b
+        where a.PARENTORGID=b.ID
+        ) b
+        where YEARS=(select YEARS FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+        and QUARTER=(select QUARTER FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+        and a.ORGID=b.ID
+        ) t1
+        where t1.ID not in
+        (
+
+        select t1.ID from
+
+        (
+        select a.*,b."NAME" as "AREA_NAME" from COS_INX_OFFICEBONUS a,
+        (
+        select a.ID,b.NAME from COS_INX_ORGANIZATION a,
+        (
+        select ID,NAME from COS_INX_ORGANIZATION where PARENTORGID=10000001
+        ) b
+        where a.PARENTORGID=b.ID
+        ) b
+        where YEARS=(select YEARS FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+        and QUARTER=(select QUARTER FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+        and a.ORGID=b.ID
+        ) t1,
+        (
+        select ORGID,TRUE_TOTAL from COS_INX_OFFICEBONUS
+        where YEARS=(:1)
+        and QUARTER=(:2)
+        ) tb,
+        (
+        select ORGID,TRUE_TOTAL from COS_INX_OFFICEBONUS
+        where YEARS=(:3)
+        and QUARTER=(:4)
+        ) hb
+
+        where t1.ORGID=tb.ORGID
+        and tb.ORGID=hb.ORGID
+        and t1.ORGID=hb.ORGID
+
+        )
+        ) t
+    </select>
+    //2015年第三季度物流绩效奖金同比环比
+    <select id="jxfxtj_4">
+        select rownum,t.* from (
+        select t1.ID,t1.ORGID,t1.AREA_NAME,t1.NAME,t1.TRUE_TOTAL,(t1.TRUE_TOTAL/tb.TRUE_TOTAL) as "ntb",(t1.TRUE_TOTAL/hb.TRUE_TOTAL) as "nhb" from
+
+        (
+        select a.*,b."NAME" as "AREA_NAME" from COS_INX_OFFICEBONUS a,
+        (
+        select a.ID,b.NAME from COS_INX_ORGANIZATION a,
+        (
+        select ID,NAME from COS_INX_ORGANIZATION where PARENTORGID=10000003
+        ) b
+        where a.PARENTORGID=b.ID
+        ) b
+        where YEARS=(select YEARS FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+        and QUARTER=(select QUARTER FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+        and a.ORGID=b.ID
+        ) t1,
+        (
+        select ORGID,TRUE_TOTAL from COS_INX_OFFICEBONUS
+        where YEARS=('2014')
+        and QUARTER=(select QUARTER FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+        ) tb,
+        (
+        select ORGID,TRUE_TOTAL from COS_INX_OFFICEBONUS
+        where YEARS=('2014')
+        and QUARTER=('四季度')
+        ) hb
+
+        where t1.ORGID=tb.ORGID
+        and tb.ORGID=hb.ORGID
+        and t1.ORGID=hb.ORGID
+
+        union all
+        select t1.ID,t1.ORGID,t1.AREA_NAME,t1.NAME,t1.TRUE_TOTAL,0,0 from
+
+        (
+        select a.*,b."NAME" as "AREA_NAME" from COS_INX_OFFICEBONUS a,
+        (
+        select a.ID,b.NAME from COS_INX_ORGANIZATION a,
+        (
+        select ID,NAME from COS_INX_ORGANIZATION where PARENTORGID=10000003
+        ) b
+        where a.PARENTORGID=b.ID
+        ) b
+        where YEARS=(select YEARS FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+        and QUARTER=(select QUARTER FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+        and a.ORGID=b.ID
+        ) t1
+        where t1.ID not in
+        (
+
+        select t1.ID from
+
+        (
+        select a.*,b."NAME" as "AREA_NAME" from COS_INX_OFFICEBONUS a,
+        (
+        select a.ID,b.NAME from COS_INX_ORGANIZATION a,
+        (
+        select ID,NAME from COS_INX_ORGANIZATION where PARENTORGID=10000003
+        ) b
+        where a.PARENTORGID=b.ID
+        ) b
+        where YEARS=(select YEARS FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+        and QUARTER=(select QUARTER FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+        and a.ORGID=b.ID
+        ) t1,
+        (
+        select ORGID,TRUE_TOTAL from COS_INX_OFFICEBONUS
+        where YEARS=(:1)
+        and QUARTER=(:2)
+        ) tb,
+        (
+        select ORGID,TRUE_TOTAL from COS_INX_OFFICEBONUS
+        where YEARS=(:3)
+        and QUARTER=(:4)
+        ) hb
+
+        where t1.ORGID=tb.ORGID
+        and tb.ORGID=hb.ORGID
+        and t1.ORGID=hb.ORGID
+
+        )
+        ) t
+    </select>
+    //获得当前季度和年
+    <select id="get_now_year">
+        select YEARS,QUARTER FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10'
+    </select>
+
+    //设置消息
+    <select id="zg_qy">
+        INSERT INTO COS_INX_REMIND(ID,YEARS,QUARTER,CONTENT,STATUS,PERID,SUB_TIME)
+        VALUES
+        (
+        SEQ_COS_INX_REMIND.NEXTVAL,
+        (select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10'),
+        (select QUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10'),
+        (select name || (:1) from COS_INX_ORGANIZATION where id = (:2)),
+        'N',
+        (select RESPONSIBLEPER from COS_INX_ORGANIZATION where id = (:2))
+        <!--(select id from COS_INX_EMPLOYEEINFO where id = (select RESPONSIBLEPER from COS_INX_ORGANIZATION where id = (select orgid from COS_INX_EMPLOYEEINFO where id = (:2))))-->
+        ,SYSDATE
+        )
+    </select>
+    <select id="qy_zg">
+
+    </select>
+    <select id="gs_rs">
+        INSERT INTO COS_INX_REMIND(ID,YEARS,QUARTER,CONTENT,STATUS,PERID,SUB_TIME)
+        VALUES
+        (
+        SEQ_COS_INX_REMIND.NEXTVAL,
+        (select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10'),
+        (select QUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10'),
+        (:1),
+        'N',
+        (select ID from COS_INX_EMPLOYEEINFO where code=(:2)),
+        SYSDATE
+        )
+    </select>
+
+
+
+    <select id="getOfficeEmployee">
+        select * from COS_INX_EMPLOYEEINFO where orgid = (:1) and position ='10'
+    </select>
+
+    <select id="getEmployeeBonusInfo">
+        select rownum,aa.id,aa.code,aa.name,bb.position,bb.entry_time,bb.POSITIVE_TIME,aa.remarks,aa.proportion,aa.SUPERIORPRO,aa.REMARKSPRO
+        from COS_INX_PERSONBONUS aa
+        left join COS_INX_EMPLOYEEINFO bb
+        ON (aa.code = bb.code)
+        where DEPTCODE = (:1)
+        AND YEARS = (select YEARS FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+        AND QUARTER = (select QUARTER FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    </select>
+
+    <select id="getIsHaveInfo">
+        select DISTINCT substatus as num from COS_INX_PERSONBONUS
+        where DEPTCODE = (:1)
+        AND YEARS = (select years from COS_INX_TIMESTATUS where currentstatus = '10')
+        AND QUARTER = (select quarter from COS_INX_TIMESTATUS where currentstatus = '10')
+    </select>
+
+    <select id="setEmployeeBonus">
+        insert into COS_INX_PERSONBONUS
+        (
+        id,years,quarter,code,name,proportion,remarks,deptcode,substatus
+        )
+        values
+        (
+        seq_COS_INX_PERSONBONUS.nextval,
+        (select YEARS from COS_INX_TIMESTATUS where currentstatus = '10'),
+        (select QUARTER from COS_INX_TIMESTATUS where currentstatus = '10'),
+        (:1),
+        (:2),
+        (:3),
+        (:4),
+        (:5),
+        (:6)
+
+        )
+    </select>
+
+    <select id="updateEmployeeBonus">
+        update COS_INX_PERSONBONUS set REMARKS = (:1) , proportion = (:2), substatus = (:3) where id = (:4)
+    </select>
+
+    <select id="setOfficeCheckStatus">
+        insert into COS_INX_OFFICECHECKSTATUS(id,years,quarter,orgid,sub_status,cre_time,cre_pers)
+        VALUES
+        (
+        SEQ_COS_INX_OFFICECHECKSTATUS.NEXTVAL,
+        (select years from COS_INX_TIMESTATUS where currentstatus = '10'),
+        (select quarter from COS_INX_TIMESTATUS where currentstatus = '10'),
+        (:1),
+        '10',
+        sysdate,
+        (:2)
+        )
+    </select>
+
+    <!-- 从时间表里面获得数据 -->
+    <select id="getTimeValues">
+        select id,description,remarks,cre_time,end_time from COS_INX_CONTROLTIME where years = (:1) and quarter = (:2)
+    </select>
+
+    <!-- 更新时间表里面的数据 -->
+    <select id="updateTimeValues">
+        update COS_INX_CONTROLTIME set cre_time = to_date((:1),'YYYY-MM-DD HH24:MI'), end_time = to_date((:2),'YYYY-MM-DD HH24:MI'), remarks = (:3), years = (:4), quarter = (:5) WHERE id = (:6)
+    </select>
+
+    <!-- 获得当前操作的＊＊＊年、季度＊＊＊ -->
+    <select id="getQuarter">
+        select * from COS_INX_TIMESTATUS where currentstatus = '10'
+    </select>
+
+    <!-- 获得时间控制项，码表的数据 -->
+    <select id="getTimeTerm">
+        select * from COS_INX_TIMECONTROLTERM
+    </select>
+
+    <!-- 新插入时间控制表数据 -->
+    <select id="insertTimeValues">
+        INSERT INTO COS_INX_CONTROLTIME(ID, YEARS, QUARTER, DESCRIPTION, CRE_TIME, END_TIME, REMARKS)
+        VALUES
+        (
+        SEQ_COS_INX_CONTROLTIME.NEXTVAL,
+        (:1),
+        (:2),
+        (:3),
+        to_date((:4),'YYYY-MM-DD HH24:MI'),
+        to_date((:5),'YYYY-MM-DD HH24:MI'),
+        (:6)
+        )
+    </select>
+
+    <!-- 更新时间状态表里面的操作状态字段为10 -->
+    <select id="updateTimeStauts">
+        UPDATE COS_INX_TIMESTATUS SET OPERATIONSTATUS = '10' WHERE YEARS = (:1) AND QUARTER = (:2)
+    </select>
+
+    <!-- 更新时间状态表两个状态为20,20 -->
+    <select id="updateTimeStautsEnd">
+        UPDATE COS_INX_TIMESTATUS SET CURRENTSTATUS = '20', OPERATIONSTATUS = '20' WHERE YEARS = (:1) AND QUARTER = (:2)
+    </select>
+
+    <!-- 新插入时间状态表两个状态为10,20 -->
+    <select id="insertTimeStautsStart">
+        insert into COS_INX_TIMESTATUS(ID, YEARS, QUARTER, CURRENTSTATUS, OPERATIONSTATUS)
+        VALUES
+        (
+        SEQ_COS_INX_TIMESTATUS.NEXTVAL,
+        (:1),
+        (:2),
+        '10',
+        '20'
+        )
+    </select>
+
+    <select id="getAllBonus">
+        select ID,AWARD,NAME,SUBSTATUS
+        from COS_INX_COMPANYBONUS
+        where YEARS = (select YEARS
+        from COS_INX_TIMESTATUS
+        where CURRENTSTATUS = '10')
+        and QUARTER = (select QUARTER
+        from COS_INX_TIMESTATUS
+        where CURRENTSTATUS = '10')
+    </select>
+
+    <select id="getAllBonusTb">
+        select a.ID,a.NAME,a.AWARD,b.AWARD "TB",a.SUBSTATUS
+        from (select ID,NAME,AWARD,SUBSTATUS
+        from COS_INX_COMPANYBONUS
+        where QUARTER = (select QUARTER
+        from COS_INX_TIMESTATUS
+        where CURRENTSTATUS = '10')
+        and YEARS = (select YEARS
+        from COS_INX_TIMESTATUS
+        where CURRENTSTATUS = '10')) a,
+        (select NAME,AWARD
+        from COS_INX_COMPANYBONUS
+        where QUARTER = (select QUARTER
+        from COS_INX_TIMESTATUS
+        where CURRENTSTATUS = '10')
+        and YEARS = (select YEARS
+        from COS_INX_TIMESTATUS
+        where CURRENTSTATUS = '10') - 1) b
+        where a.NAME = b.NAME
+    </select>
+
+    <select id="getAllBonusHb">
+        select a.ID,a.NAME,a.AWARD,b.AWARD "HB",a.SUBSTATUS
+        from (select ID,NAME,AWARD,SUBSTATUS
+        from COS_INX_COMPANYBONUS
+        where QUARTER = (select QUARTER
+        from COS_INX_TIMESTATUS
+        where CURRENTSTATUS = '10')
+        and YEARS = (select YEARS
+        from COS_INX_TIMESTATUS
+        where CURRENTSTATUS = '10')) a,
+        (select NAME,AWARD
+        from COS_INX_COMPANYBONUS
+        where QUARTER = (:1)
+        and YEARS = (select YEARS
+        from COS_INX_TIMESTATUS
+        where CURRENTSTATUS = '10')) b
+        where a.NAME = b.NAME
+    </select>
+
+    <select id="getAllBonusTH">
+        select a.ID,a.NAME,a.AWARD,b.AWARD "TB",c.AWARD "HB",a.SUBSTATUS
+        from (select ID,NAME,AWARD,SUBSTATUS
+        from COS_INX_COMPANYBONUS
+        where QUARTER = (select QUARTER
+        from COS_INX_TIMESTATUS
+        where CURRENTSTATUS = '10')
+        and YEARS = (select YEARS
+        from COS_INX_TIMESTATUS
+        where CURRENTSTATUS = '10')) a,
+        (select NAME,AWARD
+        from COS_INX_COMPANYBONUS
+        where QUARTER = (select QUARTER
+        from COS_INX_TIMESTATUS
+        where CURRENTSTATUS = '10')
+        and YEARS = (select YEARS
+        from COS_INX_TIMESTATUS
+        where CURRENTSTATUS = '10') - 1) b,
+        (select NAME,AWARD
+        from COS_INX_COMPANYBONUS
+        where QUARTER = (:1)
+        and YEARS = (select YEARS
+        from COS_INX_TIMESTATUS
+        where CURRENTSTATUS = '10')) c
+        where a.NAME = b.NAME
+        and b.NAME = c.NAME
+    </select>
+
+    <select id="getNoBonus">
+        select ID,NAME
+        from COS_INX_ORGANIZATION
+        where TYPE = '10'
+    </select>
+
+    <select id="setAllBonus">
+        update COS_INX_COMPANYBONUS
+        set AWARD = (:1)
+        where ID = (:2)
+    </select>
+
+    <select id="setNoBonus">
+        insert into COS_INX_COMPANYBONUS
+        (ID,YEARS,QUARTER,ORGID,NAME,AWARD,SUBSTATUS)
+        values(
+        SEQ_COS_INX_COMPANYBONUS.NEXTVAL,
+        (select YEARS
+        from COS_INX_TIMESTATUS
+        where CURRENTSTATUS = '10'),
+        (select QUARTER
+        from COS_INX_TIMESTATUS
+        where CURRENTSTATUS = '10'),
+        (:1),
+        (:2),
+        (:3),
+        '0'
+        )
+    </select>
+
+    <select id="subAllBonus">
+        update COS_INX_COMPANYBONUS
+        set AWARD = (:1),
+        SUBSTATUS = '1'
+        where ID = (:2)
+    </select>
+
+    <select id="subNoBonus">
+        insert into COS_INX_COMPANYBONUS
+        (ID,YEARS,QUARTER,ORGID,NAME,AWARD,SUBSTATUS)
+        values(
+        SEQ_COS_INX_COMPANYBONUS.NEXTVAL,
+        (select YEARS
+        from COS_INX_TIMESTATUS
+        where CURRENTSTATUS = '10'),
+        (select QUARTER
+        from COS_INX_TIMESTATUS
+        where CURRENTSTATUS = '10'),
+        (:1),
+        (:2),
+        (:3),
+        '1'
+        )
+    </select>
+
+    <select id="getAllTube">
+        select a.ID,d.NAME COMPANY,c.NAME AREA,b.NAME OFFICE,a.PERSONNUM,a.SUBSTATUS
+        from COS_INX_TUBEPERSONNUM a,
+        (select ID,NAME,PARENTORGID from COS_INX_ORGANIZATION where TYPE = '30') b,
+        (select ID,NAME,PARENTORGID from COS_INX_ORGANIZATION where TYPE = '20') c,
+        (select ID,NAME from COS_INX_ORGANIZATION where TYPE = '10') d
+        where a.ORGID = b.ID
+        and b.PARENTORGID = c.ID
+        and c.PARENTORGID = d.ID
+        and a.YEARS = (:1)
+        and a.QUARTER = (:2)
+    </select>
+    <select id="getNoTube">
+        select a.ID,c.NAME COMPANY,b.NAME AREA,a.NAME OFFICE
+        from (select ID,NAME,PARENTORGID from COS_INX_ORGANIZATION where TYPE = '30') a,
+        (select ID,NAME,PARENTORGID from COS_INX_ORGANIZATION where TYPE = '20') b,
+        (select ID,NAME from COS_INX_ORGANIZATION where TYPE = '10') c
+        where a.PARENTORGID = b.ID
+        and b.PARENTORGID = c.ID
+    </select>
+    <select id="setAllTube">
+        update COS_INX_TUBEPERSONNUM
+        set PERSONNUM = (:1)
+        where ID = (:2)
+    </select>
+    <select id="setNoTube">
+        insert into COS_INX_TUBEPERSONNUM
+        (ID,YEARS,QUARTER,ORGID,PERSONNUM,SUBSTATUS)
+        values(
+        SEQ_COS_INX_TUBEPERSONNUM.NEXTVAL,
+        (:1),
+        (:2),
+        (:3),
+        (:4),
+        '0')
+    </select>
+    <select id="subAllTube">
+        update COS_INX_TUBEPERSONNUM
+        set PERSONNUM = (:1),
+        SUBSTATUS = '1'
+        where ID = (:2)
+    </select>
+    <select id="subNoTube">
+        insert into COS_INX_TUBEPERSONNUM
+        (ID,YEARS,QUARTER,ORGID,PERSONNUM,SUBSTATUS)
+        values(
+        SEQ_COS_INX_TUBEPERSONNUM.NEXTVAL,
+        (:1),
+        (:2),
+        (:3),
+        (:4),
+        '1')
+    </select>
+
+    <select id="getAllBusiness">
+        select a.ID,d.NAME COMPANY,c.NAME AREA,b.NAME OFFICE,a.PERSONNUM,a.SUBSTATUS
+        from COS_INX_BUSINESSPERSONNUM a,
+        (select ID,NAME,PARENTORGID from COS_INX_ORGANIZATION where TYPE = '30') b,
+        (select ID,NAME,PARENTORGID from COS_INX_ORGANIZATION where TYPE = '20') c,
+        (select ID,NAME from COS_INX_ORGANIZATION where TYPE = '10') d
+        where a.ORGID = b.ID
+        and b.PARENTORGID = c.ID
+        and c.PARENTORGID = d.ID
+        and a.YEARS = (:1)
+        and a.QUARTER = (:2)
+    </select>
+    <select id="getNoBusiness">
+        select a.ID,c.NAME COMPANY,b.NAME AREA,a.NAME OFFICE
+        from (select ID,NAME,PARENTORGID from COS_INX_ORGANIZATION where TYPE = '30') a,
+        (select ID,NAME,PARENTORGID from COS_INX_ORGANIZATION where TYPE = '20') b,
+        (select ID,NAME from COS_INX_ORGANIZATION where TYPE = '10') c
+        where a.PARENTORGID = b.ID
+        and b.PARENTORGID = c.ID
+    </select>
+    <select id="setAllBusiness">
+        update COS_INX_BUSINESSPERSONNUM
+        set PERSONNUM = (:1)
+        where ID = (:2)
+    </select>
+    <select id="setNoBusiness">
+        insert into COS_INX_BUSINESSPERSONNUM
+        (ID,YEARS,QUARTER,ORGID,PERSONNUM,SUBSTATUS)
+        values(
+        SEQ_COS_INX_BUSINESSPERSONNUM.NEXTVAL,
+        (:1),
+        (:2),
+        (:3),
+        (:4),
+        '0')
+    </select>
+    <select id="subAllBusiness">
+        update COS_INX_BUSINESSPERSONNUM
+        set PERSONNUM = (:1),
+        SUBSTATUS = '1'
+        where ID = (:2)
+    </select>
+    <select id="subNoBusiness">
+        insert into COS_INX_BUSINESSPERSONNUM
+        (ID,YEARS,QUARTER,ORGID,PERSONNUM,SUBSTATUS)
+        values(
+        SEQ_COS_INX_BUSINESSPERSONNUM.NEXTVAL,
+        (:1),
+        (:2),
+        (:3),
+        (:4),
+        '1')
+    </select>
+
+    <select id="getNoRatio">
+        select a.ID,a.NAME,b.ID RESPONSIBLEID,b.NAME RESPONSIBLENAME
+        from (select * from COS_INX_ORGANIZATION where TYPE = '30') a
+        left join (select * from COS_INX_EMPLOYEEINFO where POSITION = '20') b
+        on a.ID = b.ORGID,
+        (select * from COS_INX_ORGANIZATION where TYPE = '20') c
+        where a.PARENTORGID = c.ID
+        and c.PARENTORGID = (:1)
+    </select>
+    <select id="getAllRatio">
+        select a.ID,a.MANAGERID RESPONSIBLEID,b.NAME RESPONSIBLENAME,c.NAME NAME,a.COEFFICIENT,a.REMARKS,c.PARENTORGID,a.SUBSTATUS
+        from COS_INX_MANAGERCOEFFICIENT a,
+        (select ID,ORGID,NAME from COS_INX_EMPLOYEEINFO where POSITION = '20') b,
+        (select ID,NAME,PARENTORGID from COS_INX_ORGANIZATION where TYPE = '30') c,
+        (select ID,NAME,PARENTORGID from COS_INX_ORGANIZATION where TYPE = '20') d
+        where a.MANAGERID = b.ID
+        and b.ORGID = c.ID
+        and c.PARENTORGID = d.ID
+        and a.YEARS = (:1)
+        and a.QUARTER = (:2)
+        and d.PARENTORGID = (:3)
+    </select>
+    <select id="setNoRatio">
+        insert into COS_INX_MANAGERCOEFFICIENT
+        (ID,MANAGERID,COEFFICIENT,REMARKS,YEARS,QUARTER,SUBSTATUS)
+        values(
+        SEQ_COS_INX_MANAGERCOEFFICIENT.NEXTVAL,
+        (:1),
+        (:2),
+        (:3),
+        (:4),
+        (:5),
+        '0')
+    </select>
+    <select id="setAllRatio">
+        update COS_INX_MANAGERCOEFFICIENT
+        set COEFFICIENT = (:1),
+        REMARKS = (:2)
+        where ID = (:3)
+    </select>
+    <select id="subNoRatio">
+        insert into COS_INX_MANAGERCOEFFICIENT
+        (ID,MANAGERID,COEFFICIENT,REMARKS,YEARS,QUARTER,SUBSTATUS)
+        values(
+        SEQ_COS_INX_MANAGERCOEFFICIENT.NEXTVAL,
+        (:1),
+        (:2),
+        (:3),
+        (:4),
+        (:5),
+        '1')
+    </select>
+    <select id="subAllRatio">
+        update COS_INX_MANAGERCOEFFICIENT
+        set COEFFICIENT = (:1),
+        REMARKS = (:2),
+        SUBSTATUS = '1'
+        where ID = (:3)
+    </select>
+    <select id="getAreaRelation">
+        select ID,NAME
+        from COS_INX_ORGANIZATION
+        where TYPE = '20'
+        and PARENTORGID = (:1)
+    </select>
+    <select id="getCompanyRelation">
+        select ID,NAME
+        from COS_INX_ORGANIZATION
+        where TYPE = '10'
+    </select>
+    <select id="getResponRelation">
+        select ID,NAME
+        from COS_INX_EMPLOYEEINFO
+        where POSITION = '30'
+        and ORGID = (:1)
+    </select>
+    <select id="getOfficeRelation">
+        select ID,NAME,RESPONSIBLEPER
+        from COS_INX_ORGANIZATION
+        where TYPE = '30'
+        and PARENTORGID = (:1)
+        and (RESPONSIBLEPER = (:2)
+        or RESPONSIBLEPER is null)
+    </select>
+    <select id="setOfficeRelation">
+        update COS_INX_ORGANIZATION
+        set RESPONSIBLEPER = (:1)
+        where ID = (:2)
+    </select>
+    <!--倒计时-->
+    <select id="getTime">
+        SELECT id,DESCRIPTION,cre_time,end_time
+        FROM COS_INX_CONTROLTIME
+        where DESCRIPTION = (:1)
+        and QUARTER = (select QUARTER
+        from COS_INX_TIMESTATUS
+        where CURRENTSTATUS = '10')
+        and YEARS = (select YEARS
+        from COS_INX_TIMESTATUS
+        where CURRENTSTATUS = '10')
+    </select>
+
+    <!-- 获得部门(公司)码表数据 -->
+    <select id="getDeptTable">
+        select ID,name,PARENTORGID from COS_INX_ORGANIZATION where type = '10'
+    </select>
+
+    <!-- 获得组/办事处码表数据 -->
+    <select id="getOfficeTable">
+        select ID,name,PARENTORGID from COS_INX_ORGANIZATION where type = '30'
+    </select>
+
+    <!-- 获得员工码表数据 -->
+    <select id="getEmpTable">
+        select id,code,name from COS_INX_EMPLOYEEINFO
+    </select>
+
+    <!-- 主管申报给上级发信息 -->
+    <select id="setMessageForArea">
+        INSERT INTO COS_INX_REMIND(ID,YEARS,QUARTER,CONTENT,STATUS,PERID)
+        VALUES
+        (
+        SEQ_COS_INX_REMIND.NEXTVAL,
+        (select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10'),
+        (select QUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10'),
+        (select name || (:1) from COS_INX_ORGANIZATION where id = (:2)),
+        'N',
+        (select RESPONSIBLEPER from COS_INX_ORGANIZATION where id = (:2))
+        <!--(select id from COS_INX_EMPLOYEEINFO where id = (select RESPONSIBLEPER from COS_INX_ORGANIZATION where id = (select orgid from COS_INX_EMPLOYEEINFO where id = (:2))))-->
+        )
+    </select>
+
+    <!-- 通过用户code查该用户的员工id，搭配上面的perid -->
+    <select id="getEmpMsg">
+        select ID,CONTENT,SUB_TIME from COS_INX_REMIND
+        where PERID = (select id from COS_INX_EMPLOYEEINFO where code = (:1))
+        and STATUS='N'
+        and  YEARS=(select YEARS FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+        and QUARTER=(select QUARTER FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    </select>
+
+    <select id="getEmpMsgOld">
+        select ID,CONTENT,SUB_TIME from COS_INX_REMIND
+        where PERID = (select id from COS_INX_EMPLOYEEINFO where code = (:1))
+        and STATUS='Y'
+        and  YEARS=(select YEARS FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+        and QUARTER=(select QUARTER FROM COS_INX_TIMESTATUS WHERE CURRENTSTATUS = '10')
+    </select>
+
+    <select id="getUserIdByCode">
+        select ID
+        from COS_INX_EMPLOYEEINFO
+        where CODE = (:1)
+    </select>
+    <select id="getAllPersonNum">
+        select c.ID OFFICEID,a.NAME COMPANY,b.NAME AREA,c.NAME OFFICE,d.PERSONNUM BUSINESSNUM,e.PERSONNUM TUBENUM,
+        d.EX_PERSONNUM BUSINESSEXNUM,e.EX_PERSONNUM TUBEEXNUM,d.SUBSTATUS BUSINESSSUB,e.SUBSTATUS TUBESUB,d.EX_SUBSTATUS JUDGE
+        from (select ID,NAME from COS_INX_ORGANIZATION where TYPE = '10') a,
+        (select ID,NAME,PARENTORGID from COS_INX_ORGANIZATION where TYPE = '20') b,
+        (select ID,NAME,PARENTORGID from COS_INX_ORGANIZATION where TYPE = '30' and RESPONSIBLEPER = (:1)) c
+        left join (select * from COS_INX_BUSINESSPERSONNUM
+        where YEARS = (select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')
+        and QUARTER = (select QUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')) d
+        on c.ID = d.ORGID
+        left join (select * from COS_INX_TUBEPERSONNUM
+        where YEARS = (select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')
+        and QUARTER = (select QUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')) e
+        on c.ID = e.ORGID
+        where a.ID = b.PARENTORGID
+        and b.ID = c.PARENTORGID
+    </select>
+    <select id="setBusinessPersonNum">
+        update COS_INX_BUSINESSPERSONNUM
+        set EX_PERSONNUM = (:1),
+        EX_SUBSTATUS = '0'
+        where ORGID = (:2)
+        and YEARS = (select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')
+        and QUARTER = (select QUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')
+    </select>
+    <select id="setTubePersonNum">
+        update COS_INX_TUBEPERSONNUM
+        set EX_PERSONNUM = (:1),
+        EX_SUBSTATUS = '0'
+        where ORGID = (:2)
+        and YEARS = (select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')
+        and QUARTER = (select QUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')
+    </select>
+    <select id="subBusinessPersonNum">
+        update COS_INX_BUSINESSPERSONNUM
+        set EX_PERSONNUM = (:1), EXAMINE_PERS = (:2), EXAMINE_TIME = sysdate, EX_SUBSTATUS = '1'
+        where ORGID = (:3)
+        and YEARS = (select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')
+        and QUARTER = (select QUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')
+    </select>
+    <select id="subTubePersonNum">
+        update COS_INX_TUBEPERSONNUM
+        set EX_PERSONNUM = (:1), EXAMINE_PERS = (:2), EXAMINE_TIME = sysdate, EX_SUBSTATUS = '1'
+        where ORGID = (:3)
+        and YEARS = (select YEARS from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')
+        and QUARTER = (select QUARTER from COS_INX_TIMESTATUS where CURRENTSTATUS = '10')
+    </select>
+    <select id="getPersonNum">
+        select a.NAME COMPANY,b.NAME AREA,c.NAME OFFICE,d.EX_PERSONNUM BUSINESSEXNUM,e.EX_PERSONNUM TUBEEXNUM,d.EX_SUBSTATUS JUDGE
+        from (select ID,NAME from COS_INX_ORGANIZATION where TYPE = '10') a,
+        (select ID,NAME,PARENTORGID from COS_INX_ORGANIZATION where TYPE = '20') b,
+        (select ID,NAME,PARENTORGID from COS_INX_ORGANIZATION where TYPE = '30') c
+        left join (select * from COS_INX_BUSINESSPERSONNUM where YEARS = (:1) and QUARTER = (:2)) d on c.ID = d.ORGID
+        left join (select * from COS_INX_TUBEPERSONNUM where YEARS = (:3) and QUARTER = (:4)) e on c.ID = e.ORGID
+        where a.ID = b.PARENTORGID
+        and b.ID = c.PARENTORGID
+    </select>
+
+
+</sql>

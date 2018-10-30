@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>各办奖金分配</title>
+
+    <meta name="description" content="top menu &amp; navigation" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+    <% include ../_required.html %>
+    <link rel="stylesheet" href="<%= dynamic('/assets/dataTable/media/css/jquery.dataTables.css') %>" />
+    <!--所有页面都会用到的样式-->
+    <link rel="stylesheet" href="<%= dynamic('/stylesheets/performance/frameworkStyle.css') %>" />
+
+    <style type="text/css" class="init">
+        .dataTables_wrapper{
+            width:1200px;
+        }
+        table.dataTable tbody th, table.dataTable tbody td {
+            padding: 4px 10px;
+        }
+        table{padding-top:10px;}
+        thead {
+            background: #D9E8F7;
+            color: #307ecc;
+            font-size: 12px;
+        }
+        input {
+            width: 130px;
+            height: 30px;
+        }
+        .edit-input {
+            height: 22px;
+            width: 50px;
+        }
+        .edit-input2 {
+            height: 22px;
+            width: 50px;
+        }
+        tfoot th {
+            color: red;
+        }
+        table.dataTable thead th, table.dataTable thead td {
+            padding: 10px 10px;
+        }
+        .btn-hr-distribution {
+            float: right;
+            border: 0px solid #FFF;
+            margin-right: 8px;
+        }
+        #navi {
+            color: green;
+        }
+    </style>
+
+</head>
+<body class="no-skin" style="overflow-x: hidden" data-value="bonus">
+
+<% include _performance_header.html %>
+
+<div class="row">
+    <div class="col-sm-12">
+
+        <div class="tabbable">
+            <div class="tabbable tabs-left">
+
+                <div class="sidebar" id="sidebar">
+                    <% include _left_report.html %>
+                </div>
+
+                <div class="main-content">
+                    <div class="breadcrumbs" id="breadcrumbs">
+                        <script type="text/javascript">
+                            try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+                        </script>
+
+                        <ul class="breadcrumb">
+                            <li>
+                                <i class="ace-icon fa fa-home home-icon"></i>
+                                <a href="/site/flowChart?name=绩效考核">Home</a>
+                            </li>
+
+                            <li>
+                                人资管理
+                            </li>
+                            <li class="active">
+                                各办奖金分配
+                                <span id="navi"></span>
+                            </li>
+                        </ul><!-- /.breadcrumb -->
+
+                        <span style="float: right;font-size: 16px;">
+                            <strong style="color:green;">距离结束还有</strong>
+                            <strong style="color:red;">
+                                <!--倒计时模块-->
+                                <div class="time-item" style="display: inline;">
+                                    <span id="day_show">0天</span>
+                                    <strong id="hour_show">0时</strong>
+                                    <strong id="minute_show">0分</strong>
+                                    <strong id="second_show">0秒</strong>
+                                </div>
+                            </strong>
+                        </span>
+
+                    </div>
+                    <div class="tab-content" id="page-content">
+
+                        <div class="tabbable">
+                            <ul class="nav nav-tabs padding-12 tab-color-blue background-blue" id="myTab4">
+                                <li class="active">
+                                    <a data-toggle="tab" href="#home4" id="tab1">航线</a>
+                                </li>
+
+                                <li class="">
+                                    <a data-toggle="tab" href="#profile4" id="tab2">物流</a>
+                                </li>
+
+
+                                <li class="">
+                                    <a data-toggle="tab" href="#profile4" id="tab3">散货</a>
+                                </li>
+                                <button class="btn btn-primary btn-hr-distribution" id="button_submit">完成</button>
+                                <button class="btn btn-primary btn-hr-distribution" id="button_keep">保存</button>
+                            </ul>
+
+                            <div class="tab-content">
+                                <div id="home4" class="tab-pane active">
+                                    <table id="example1" class="display" cellspacing="0" width="100%">
+                                        <thead>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                        <tfoot>
+                                        <tr>
+                                            <th><span style="white-space:nowrap;">合计：</span></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th id = "peo_num">0</th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th id="score_sum">0</th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th id="bus_num">0</th>
+                                            <th id="bus_num_money"></th>
+                                            <th id="tube_num">0</th>
+                                            <th id="tube_num_money"></th>
+                                            <th id="pra_num">0</th>
+                                            <th></th>
+                                            <th id="pra_num_money">0</th>
+                                            <th id="pos_num">0</th>
+                                            <th id="pos_mon">0</th>
+                                            <th id="pos_num_money">0</th>
+                                            <th id="money_sum">0</th>
+                                        </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+
+                                <div id="profile4" class="tab-pane">
+                                    <span style="font-size: 19px;color:lightskyblue;">功能未上线</span>
+                                </div>
+
+                                <div id="dropdown14" class="tab-pane">
+                                    <p>Etsy mixtape wayfarers, ethical wes anderson tofu before they sold out mcsweeney's organic lomo retro fanny pack lo-fi farm-to-table readymade.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+<div class="time-control" hidden="hidden" data-val="gbjjfp"></div>
+<% include ../_footer.html %>
+
+<script src="/static/assets/js/ace.min.js"></script>
+<script type="text/javascript" src="<%= dynamic('/assets/dataTable/media/js/jquery.dataTables.js') %>"></script>
+<script type="text/javascript" src="<%= dynamic('/assets/dataTable/resources/syntax/shCore.js') %>"></script>
+<script type="text/javascript" src="<%= dynamic('/assets/dataTable/resources/demo.js') %>"></script>
+
+<script type="text/javascript" src="/static/javascripts/performance/jquery.time_show_self.js"></script>
+<script src="/static/javascripts/performance/timeControl.js"></script>
+<script src="/static/javascripts/performance/bonus.js"></script>
+</body>
+</html>

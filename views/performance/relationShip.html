@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>上下级关系维护</title>
+    <meta name="description" content="top menu &amp; navigation" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <link rel="stylesheet" href="/static/assets/css/chosen.css">
+    <% include ../_required.html %>
+    <!--所有页面都会用到的样式-->
+    <link rel="stylesheet" href="<%= dynamic('/stylesheets/performance/frameworkStyle.css') %>"/>
+    <style type="text/css">
+        .col-sm-4{
+            padding-left: 0px;
+            width: 300px;
+        }
+    </style>
+</head>
+<body class="no-skin" style="overflow-x: hidden" data-value="relationShip">
+<% include _performance_header.html %>
+<div class="row">
+    <div class="col-sm-12">
+        <div class="tabbable">
+            <div class="tabbable tabs-left">
+                <div class="sidebar" id="sidebar">
+                    <% include _left_report.html %>
+                </div>
+                <div class="main-content">
+                    <div class="breadcrumbs" id="breadcrumbs">
+                        <script type="text/javascript">
+                            try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+                        </script>
+
+                        <ul class="breadcrumb">
+                            <li>
+                                <i class="ace-icon fa fa-home home-icon"></i>
+                                <a href="/site/flowChart?name=绩效考核">Home</a>
+                            </li>
+
+                            <li>
+                                人资管理
+                            </li>
+                            <li>
+                                基本数据维护
+                            </li>
+                            <li class="active">
+                                上下级关系维护
+                            </li>
+                        </ul><!-- /.breadcrumb -->
+
+                    </div>
+                    <div class="tab-content" id="page-content">
+                        <div class="tabbable">
+                            <ul class="nav nav-tabs padding-12 tab-color-blue background-blue" id="select_company">
+                            </ul>
+                            <div class="tab-content">
+                                <div id="home4" class="tab-pane active">
+                                    <div>
+                                        <div style="width: 250px;float:left;">
+                                            <select id="select_area" class="form-control" style="height:28px;"></select>
+                                        </div>
+                                        <div style="width: 150px;margin-left:260px;">
+                                            <select id="select_respon" class="form-control" style="height:28px;"></select>
+                                        </div>
+                                    </div>
+
+                                    <div id="office_table" style="clear:both;">
+                                        <div class="col-sm-4">
+                                            <div class="widget-box">
+                                                <div class="widget-header">
+                                                    <h4 class="widget-title">未选择</h4>
+                                                </div>
+                                                <div class="widget-body">
+                                                    <div style="height: 500px" class="widget-main" id="select_office1">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <div class="widget-box">
+                                                <div class="widget-header">
+                                                    <h4 class="widget-title">已选择</h4>
+                                                </div>
+                                                <div class="widget-body">
+                                                    <div style="height: 500px" class="widget-main" id="select_office2">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button id="subBonus" class="btn btn-primary" style="margin-left: 500px;">提交</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<% include ../_footer.html %>
+<script src="/static/assets/js/ace.min.js"></script>
+<script type="text/javascript" src="/static/assets/js/chosen.jquery.min.js"></script>
+<script src="/static/javascripts/performance/relationShip.js"></script>
+</body>
+</html>
